@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: refund-status-service
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: refund-status-service
+  template:
+    metadata:
+      labels:
+        app: refund-status-service
+    spec:
+      initContainers:
+        - name: database-bootstrap
+          image: postgres:17-alpine
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for PostgreSQL..."
+
+              until pg_isready \
+                -h postgres \
+                -p 5432 \
+                -U "$POSTGRES_USER" \
+                -d "$POSTGRES_DB"; do
+
+                echo "PostgreSQL is not ready yet."
+                sleep 3
+              done
+
+              echo "PostgreSQL is ready."
+              echo "Applying refund database schema..."
+
+              PGPASSWORD="$POSTGRES_PASSWORD" \
+              psql \
+                -v ON_ERROR_STOP=1 \
+                -h postgres \
+                -p 5432 \
+                -U "$POSTGRES_USER" \
+                -d "$POSTGRES_DB" \
+                -f /bootstrap/V1__initial_schema.sql
+
+              echo "Database bootstrap completed successfully."
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: database-bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+      containers:
+        - name: refund-status-service
+          image: refund-status-service:0.1.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: kubernetes
+            - name: DATABASE_URL
+              value: jdbc:postgresql://postgres:5432/refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: JWT_ISSUER_URI
+              value: http://localhost:8081/realms/refund-platform
+            - name: JWT_JWK_SET_URI
+              value: http://keycloak:8080/realms/refund-platform/protocol/openid-connect/certs
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 35
+            periodSeconds: 10
+      volumes:
+        - name: database-bootstrap
+          configMap:
+            name: refund-database-bootstrap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: refund-status-service
+  namespace: refund-platform
+spec:
+  selector:
+    app: refund-status-service
+  ports:
+    - port: 8080
+      targetPort: 8080

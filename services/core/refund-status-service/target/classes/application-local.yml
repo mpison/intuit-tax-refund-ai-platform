@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/refund_platform
+    username: refund_user
+    password: refund_password
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/refund-platform
+          jwk-set-uri: http://localhost:8081/realms/refund-platform/protocol/openid-connect/certs
+
+logging:
+  level:
+    com.refundplatform.refund: DEBUG
+    org.springframework.security: DEBUG
