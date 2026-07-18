@@ -1,439 +1,194 @@
 body {
-
-    margin:
-        0;
-
-    font-family:
-        Arial,
-        sans-serif;
-
-    background:
-        #f5f7fb;
-
-    color:
-        #172033;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #172033;
 }
 
 * {
-
-    box-sizing:
-        border-box;
+    box-sizing: border-box;
 }
 
 .topbar {
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    align-items:
-        center;
-
-    padding:
-        20px 40px;
-
-    background:
-        white;
-
-    border-bottom:
-        1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .brand {
-
-    font-size:
-        22px;
-
-    font-weight:
-        700;
-
-    color:
-        #126c42;
+    font-size: 22px;
+    font-weight: 700;
+    color: #126c42;
 }
 
 .subtitle {
-
-    margin-top:
-        4px;
-
-    color:
-        #667085;
-}
-
-.profile {
-
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    gap:
-        16px;
+    margin-top: 4px;
+    color: #667085;
 }
 
 .content {
-
-    width:
-        min(
-            1100px,
-            calc(
-                100% - 32px
-            )
-        );
-
-    margin:
-        40px auto;
+    width: min(1100px, calc(100% - 32px));
+    margin: 40px auto;
 }
 
 .hero,
 .card {
-
-    padding:
-        28px;
-
-    margin-bottom:
-        20px;
-
-    border-radius:
-        16px;
-
-    background:
-        white;
-
-    box-shadow:
-        0 10px 28px
-        rgba(
-            0,
-            0,
-            0,
-            0.06
-        );
+    padding: 28px;
+    margin-bottom: 20px;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
 }
 
 .hero {
-
-    display:
-        flex;
-
-    justify-content:
-        space-between;
-
-    align-items:
-        center;
-
-    color:
-        white;
-
-    background:
-        linear-gradient(
-            135deg,
-            #126c42,
-            #249362
-        );
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    background: linear-gradient(135deg, #126c42, #249362);
 }
 
 .hero h1 {
-
-    margin:
-        8px 0;
-
-    font-size:
-        46px;
+    margin: 8px 0;
+    font-size: 46px;
 }
 
 .eyebrow {
-
-    margin:
-        0;
-
-    font-weight:
-        700;
-
-    opacity:
-        0.9;
+    margin: 0;
+    font-weight: 700;
+    opacity: 0.9;
 }
 
 button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
 
-    padding:
-        10px 16px;
-
-    border:
-        0;
-
-    border-radius:
-        8px;
-
-    cursor:
-        pointer;
-
-    font-weight:
-        700;
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .secondaryButton {
-
-    color:
-        #126c42;
-
-    background:
-        #eaf7ef;
+    color: #126c42;
+    background: #eaf7ef;
 }
 
 .refundTimeline {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        repeat(
-            6,
-            1fr
-        );
-
-    gap:
-        12px;
-
-    margin-top:
-        28px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 28px;
 }
 
 .refundStage {
-
-    position:
-        relative;
-
-    text-align:
-        center;
+    position: relative;
+    text-align: center;
 }
 
 .refundStage:not(:last-child)::after {
-
-    content:
-        "";
-
-    position:
-        absolute;
-
-    top:
-        17px;
-
-    left:
-        calc(
-            50% + 18px
-        );
-
-    width:
-        calc(
-            100% - 36px
-        );
-
-    height:
-        2px;
-
-    background:
-        #d7dde5;
-
-    z-index:
-        0;
+    content: "";
+    position: absolute;
+    top: 17px;
+    left: calc(50% + 18px);
+    width: calc(100% - 36px);
+    height: 2px;
+    background: #d7dde5;
+    z-index: 0;
 }
 
 .refundStageMarker {
-
-    position:
-        relative;
-
-    z-index:
-        1;
-
-    width:
-        36px;
-
-    height:
-        36px;
-
-    margin:
-        0 auto 10px;
-
-    display:
-        grid;
-
-    place-items:
-        center;
-
-    border:
-        2px solid #c9d0da;
-
-    border-radius:
-        50%;
-
-    background:
-        white;
-
-    color:
-        #667085;
-
-    font-weight:
-        800;
+    position: relative;
+    z-index: 1;
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 10px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #c9d0da;
+    border-radius: 50%;
+    background: white;
+    color: #667085;
+    font-weight: 800;
 }
 
 .refundStageMarker.active {
-
-    border-color:
-        #167d4b;
-
-    background:
-        #e9f7ef;
-
-    color:
-        #167d4b;
+    border-color: #167d4b;
+    background: #e9f7ef;
+    color: #167d4b;
 }
 
 .refundStageLabel {
-
-    color:
-        #667085;
-
-    font-size:
-        14px;
+    color: #667085;
+    font-size: 14px;
 }
 
 .refundStageLabel.current {
-
-    color:
-        #126c42;
-
-    font-weight:
-        800;
+    color: #126c42;
+    font-weight: 800;
 }
 
 .detailsGrid {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
-    gap:
-        20px;
-}
-
-dl {
-
-    margin:
-        0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 dl div {
-
-    display:
-        grid;
-
-    grid-template-columns:
-        140px 1fr;
-
-    gap:
-        20px;
-
-    padding:
-        12px 0;
-
-    border-bottom:
-        1px solid #eceff3;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eceff3;
 }
 
 dt {
-
-    color:
-        #667085;
+    color: #667085;
 }
 
 dd {
-
-    margin:
-        0;
-
-    font-weight:
-        600;
+    margin: 0;
+    font-weight: 600;
 }
 
 .errorCard {
-
-    border:
-        1px solid #e8a0a0;
-
-    background:
-        #fff8f8;
+    border: 1px solid #e8a0a0;
+    background: #fff8f8;
 }
 
-@media (
-    max-width: 780px
-) {
-
-    .topbar {
-
-        padding:
-            16px 20px;
-    }
-
+@media (max-width: 780px) {
     .hero {
-
-        align-items:
-            flex-start;
-
-        flex-direction:
-            column;
-
-        gap:
-            20px;
-    }
-
-    .hero h1 {
-
-        font-size:
-            36px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 20px;
     }
 
     .refundTimeline {
-
-        grid-template-columns:
-            1fr;
+        grid-template-columns: 1fr;
     }
 
     .refundStage {
-
-        display:
-            flex;
-
-        align-items:
-            center;
-
-        gap:
-            12px;
-
-        text-align:
-            left;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-align: left;
     }
 
     .refundStage:not(:last-child)::after {
-
-        display:
-            none;
+        display: none;
     }
 
     .refundStageMarker {
-
-        margin:
-            0;
+        margin: 0;
     }
 
     .detailsGrid {
-
-        grid-template-columns:
-            1fr;
+        grid-template-columns: 1fr;
     }
 }

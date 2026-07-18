@@ -11,7 +11,6 @@ spring:
           issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081/realms/refund-platform}
           jwk-set-uri: ${JWT_JWK_SET_URI:http://keycloak:8080/realms/refund-platform/protocol/openid-connect/certs}
 
-logging:
-  level:
-    com.refundplatform.refund: INFO
-    org.springframework.security: INFO
+integrations:
+  irs-simulator:
+    base-url: ${IRS_SIMULATOR_BASE_URL:http://irs-simulator:8090}

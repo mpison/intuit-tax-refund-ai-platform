@@ -14,8 +14,8 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY     --from=build     /workspace/target/refund-status-service-0.2.0.jar     /app/application.jar
+COPY     --from=build     /workspace/target/irs-simulator-0.2.0.jar     /app/application.jar
 
-EXPOSE 8080
+EXPOSE 8090
 
 ENTRYPOINT ["java", "-jar", "/app/application.jar"]

@@ -1,11 +1,11 @@
 import React, {
     useEffect,
-    useMemo,
     useState
 } from "react";
 
 import {
-    getLatestRefund
+    getLatestRefund,
+    refreshRefund
 } from "./api/refundApi";
 
 const refundStages =
@@ -52,16 +52,22 @@ export default function App(
         useState(null);
 
     const [
-        errorMessage,
-        setErrorMessage
-    ] =
-        useState("");
-
-    const [
         isLoading,
         setIsLoading
     ] =
         useState(true);
+
+    const [
+        isRefreshing,
+        setIsRefreshing
+    ] =
+        useState(false);
+
+    const [
+        errorMessage,
+        setErrorMessage
+    ] =
+        useState("");
 
     async function loadRefund() {
 
@@ -102,6 +108,43 @@ export default function App(
         }
     }
 
+    async function refreshFromIrs() {
+
+        try {
+
+            setIsRefreshing(
+                true
+            );
+
+            setErrorMessage(
+                ""
+            );
+
+            await keycloak.updateToken(
+                30
+            );
+
+            await refreshRefund(
+                refund.taxReturnId,
+                keycloak.token
+            );
+
+            await loadRefund();
+        }
+        catch (error) {
+
+            setErrorMessage(
+                error.message
+            );
+        }
+        finally {
+
+            setIsRefreshing(
+                false
+            );
+        }
+    }
+
     useEffect(
         () => {
 
@@ -111,22 +154,11 @@ export default function App(
     );
 
     const currentStageIndex =
-        useMemo(
-            () => {
-
-                if (!refund) {
-
-                    return -1;
-                }
-
-                return refundStages.indexOf(
+        refund
+            ? refundStages.indexOf(
                     refund.status
-                );
-            },
-            [
-                refund
-            ]
-        );
+              )
+            : -1;
 
     return (
 
@@ -146,44 +178,20 @@ export default function App(
 
                 </div>
 
-                <div className="profile">
+                <button
+                    className="secondaryButton"
+                    onClick={
+                        () =>
+                            keycloak.logout()
+                    }>
 
-                    <span>
-                        {
-                            keycloak
-                                .tokenParsed
-                                ?.preferred_username
-                        }
-                    </span>
+                    Sign out
 
-                    <button
-                        className="secondaryButton"
-                        onClick={
-                            () =>
-                                keycloak.logout()
-                        }>
-
-                        Sign out
-
-                    </button>
-
-                </div>
+                </button>
 
             </header>
 
             <main className="content">
-
-                {
-                    isLoading
-                    && (
-
-                        <section className="card">
-
-                            Loading refund...
-
-                        </section>
-                    )
-                }
 
                 {
                     errorMessage
@@ -192,19 +200,24 @@ export default function App(
                         <section className="card errorCard">
 
                             <h2>
-                                Unable to load refund
+                                Unable to complete request
                             </h2>
 
                             <p>
                                 {errorMessage}
                             </p>
 
-                            <button
-                                onClick={loadRefund}>
+                        </section>
+                    )
+                }
 
-                                Try again
+                {
+                    isLoading
+                    && (
 
-                            </button>
+                        <section className="card">
+
+                            Loading refund...
 
                         </section>
                     )
@@ -222,16 +235,22 @@ export default function App(
                                 <div>
 
                                     <p className="eyebrow">
-
-                                        Your {refund.taxYear}
-                                        {" "}
-                                        federal refund
-
+                                        Your {refund.taxYear} federal refund
                                     </p>
 
                                     <h1>
                                         {
-                                            formatCurrency(
+                                            new Intl.NumberFormat(
+                                                "en-US",
+                                                {
+                                                    style:
+                                                        "currency",
+
+                                                    currency:
+                                                        "USD"
+                                                }
+                                            )
+                                            .format(
                                                 refund.refundAmount
                                             )
                                         }
@@ -243,14 +262,12 @@ export default function App(
                                         {" "}
 
                                         <strong>
-
                                             {
                                                 refundStageLabels[
                                                     refund.status
                                                 ]
                                                 || refund.status
                                             }
-
                                         </strong>
 
                                     </p>
@@ -258,9 +275,14 @@ export default function App(
                                 </div>
 
                                 <button
-                                    onClick={loadRefund}>
+                                    disabled={isRefreshing}
+                                    onClick={refreshFromIrs}>
 
-                                    Refresh status
+                                    {
+                                        isRefreshing
+                                            ? "Refreshing..."
+                                            : "Refresh from IRS"
+                                    }
 
                                 </button>
 
@@ -277,63 +299,52 @@ export default function App(
                                     {
                                         refundStages.map(
                                             (
-                                                refundStage,
-                                                refundStageIndex
-                                            ) => {
+                                                stage,
+                                                stageIndex
+                                            ) => (
 
-                                                const isCompleted =
-                                                    refundStageIndex
-                                                    < currentStageIndex;
-
-                                                const isCurrent =
-                                                    refundStageIndex
-                                                    === currentStageIndex;
-
-                                                const isActive =
-                                                    refundStageIndex
-                                                    <= currentStageIndex;
-
-                                                return (
+                                                <div
+                                                    className="refundStage"
+                                                    key={stage}>
 
                                                     <div
-                                                        className="refundStage"
-                                                        key={refundStage}>
+                                                        className={
+                                                            stageIndex
+                                                                <= currentStageIndex
+                                                                ? "refundStageMarker active"
+                                                                : "refundStageMarker"
+                                                        }>
 
-                                                        <div
-                                                            className={
-                                                                isActive
-                                                                    ? "refundStageMarker active"
-                                                                    : "refundStageMarker"
-                                                            }>
-
-                                                            {
-                                                                isCompleted
-                                                                    ? "✓"
-                                                                    : isCurrent
-                                                                        ? "●"
-                                                                        : ""
-                                                            }
-
-                                                        </div>
-
-                                                        <div
-                                                            className={
-                                                                isCurrent
-                                                                    ? "refundStageLabel current"
-                                                                    : "refundStageLabel"
-                                                            }>
-
-                                                            {
-                                                                refundStageLabels[
-                                                                    refundStage
-                                                                ]
-                                                            }
-
-                                                        </div>
+                                                        {
+                                                            stageIndex
+                                                                < currentStageIndex
+                                                                ? "✓"
+                                                                : stageIndex
+                                                                    === currentStageIndex
+                                                                    ? "●"
+                                                                    : ""
+                                                        }
 
                                                     </div>
-                                                );
-                                            }
+
+                                                    <div
+                                                        className={
+                                                            stageIndex
+                                                                === currentStageIndex
+                                                                ? "refundStageLabel current"
+                                                                : "refundStageLabel"
+                                                        }>
+
+                                                        {
+                                                            refundStageLabels[
+                                                                stage
+                                                            ]
+                                                        }
+
+                                                    </div>
+
+                                                </div>
+                                            )
                                         )
                                     }
 
@@ -383,25 +394,10 @@ export default function App(
 
                                             <dd>
                                                 {
-                                                    formatDate(
+                                                    new Date(
                                                         refund.filedAt
                                                     )
-                                                }
-                                            </dd>
-
-                                        </div>
-
-                                        <div>
-
-                                            <dt>
-                                                Last checked
-                                            </dt>
-
-                                            <dd>
-                                                {
-                                                    formatDateTime(
-                                                        refund.lastCheckedAt
-                                                    )
+                                                    .toLocaleDateString()
                                                 }
                                             </dd>
 
@@ -420,59 +416,5 @@ export default function App(
             </main>
 
         </div>
-    );
-}
-
-function formatCurrency(
-    value
-) {
-
-    return new Intl.NumberFormat(
-        "en-US",
-        {
-            style:
-                "currency",
-
-            currency:
-                "USD"
-        }
-    )
-    .format(
-        value
-    );
-}
-
-function formatDate(
-    value
-) {
-
-    return new Intl.DateTimeFormat(
-        "en-US",
-        {
-            dateStyle:
-                "long"
-        }
-    )
-    .format(
-        new Date(value)
-    );
-}
-
-function formatDateTime(
-    value
-) {
-
-    return new Intl.DateTimeFormat(
-        "en-US",
-        {
-            dateStyle:
-                "medium",
-
-            timeStyle:
-                "short"
-        }
-    )
-    .format(
-        new Date(value)
     );
 }

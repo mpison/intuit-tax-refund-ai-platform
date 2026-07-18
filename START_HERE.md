@@ -1,39 +1,44 @@
-# Start Here
+# Start Here — v0.2.0
 
-Run commands from the project root.
+## 1. Extract into your repository
 
-## Build
+Copy this release's folders into your existing repository root:
+
+```text
+C:\Users\Melchedick Pison\AIProjects\intuit-tax-refund-ai-platform
+```
+
+Allow Windows to merge folders and replace files.
+
+## 2. Remove obsolete v0.2 patch files
+
+See:
+
+```text
+MIGRATION_FROM_V0.1.md
+```
+
+## 3. Build
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\scripts\build-images.ps1
+.\scripts\build-images-v0.2.ps1
 ```
 
-## Load images
+## 4. Load
 
 ```powershell
-kind load docker-image refund-status-service:0.1.4 --name refund-demo
-kind load docker-image customer-ui:0.1.0 --name refund-demo
+.\scripts\load-images-v0.2.ps1
 ```
 
-## Deploy
+## 5. Deploy
 
 ```powershell
 kubectl apply -k infrastructure\kubernetes\overlays\local
-kubectl get pods -n refund-platform
 ```
 
-## Port-forward
+## 6. Verify
 
 ```powershell
-kubectl port-forward -n refund-platform svc/keycloak 8081:8080
-kubectl port-forward -n refund-platform svc/refund-status-service 8080:8080
-kubectl port-forward -n refund-platform svc/customer-ui 3000:80
+kubectl get pods -n refund-platform -w
 ```
-
-Open `http://localhost:3000`.
-
-Credentials:
-
-- Username: `mel.demo`
-- Password: `Demo123!`

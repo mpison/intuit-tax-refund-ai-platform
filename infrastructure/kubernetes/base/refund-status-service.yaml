@@ -20,31 +20,15 @@ spec:
             - sh
             - -c
             - |
-              echo "Waiting for PostgreSQL..."
+              until pg_isready                 -h postgres                 -p 5432                 -U "$POSTGRES_USER"                 -d "$POSTGRES_DB"; do
 
-              until pg_isready \
-                -h postgres \
-                -p 5432 \
-                -U "$POSTGRES_USER" \
-                -d "$POSTGRES_DB"; do
-
-                echo "PostgreSQL is not ready yet."
+                echo "Waiting for PostgreSQL..."
                 sleep 3
               done
 
-              echo "PostgreSQL is ready."
               echo "Applying refund database schema..."
 
-              PGPASSWORD="$POSTGRES_PASSWORD" \
-              psql \
-                -v ON_ERROR_STOP=1 \
-                -h postgres \
-                -p 5432 \
-                -U "$POSTGRES_USER" \
-                -d "$POSTGRES_DB" \
-                -f /bootstrap/V1__initial_schema.sql
-
-              echo "Database bootstrap completed successfully."
+              PGPASSWORD="$POSTGRES_PASSWORD"               psql                 -v ON_ERROR_STOP=1                 -h postgres                 -p 5432                 -U "$POSTGRES_USER"                 -d "$POSTGRES_DB"                 -f /bootstrap/V1__initial_schema.sql
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -67,10 +51,11 @@ spec:
               readOnly: true
       containers:
         - name: refund-status-service
-          image: refund-status-service:0.1.4
+          image: refund-status-service:0.2.0
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: kubernetes
@@ -90,16 +75,18 @@ spec:
               value: http://localhost:8081/realms/refund-platform
             - name: JWT_JWK_SET_URI
               value: http://keycloak:8080/realms/refund-platform/protocol/openid-connect/certs
+            - name: IRS_SIMULATOR_BASE_URL
+              value: http://irs-simulator:8090
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8080
+              port: http
             initialDelaySeconds: 20
             periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8080
+              port: http
             initialDelaySeconds: 35
             periodSeconds: 10
       volumes:
@@ -116,5 +103,6 @@ spec:
   selector:
     app: refund-status-service
   ports:
-    - port: 8080
-      targetPort: 8080
+    - name: http
+      port: 8080
+      targetPort: http
