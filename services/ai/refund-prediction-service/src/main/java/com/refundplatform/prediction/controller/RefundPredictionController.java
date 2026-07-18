@@ -1,8 +1,9 @@
-package com.refundplatform.prediction.presentation;
+package com.refundplatform.prediction.controller;
 
-import com.refundplatform.prediction.application.RefundEtaPredictor;
-import com.refundplatform.prediction.application.RefundPredictionRequest;
-import com.refundplatform.prediction.application.RefundPredictionResponse;
+import com.refundplatform.prediction.dto.RefundPredictionRequest;
+import com.refundplatform.prediction.dto.RefundPredictionResponse;
+import com.refundplatform.prediction.service.RefundEtaPredictor;
+
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 

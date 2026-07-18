@@ -1,4 +1,4 @@
-package com.refundplatform.prediction.domain;
+package com.refundplatform.prediction.model;
 
 public enum RefundStatus {
     FILED,

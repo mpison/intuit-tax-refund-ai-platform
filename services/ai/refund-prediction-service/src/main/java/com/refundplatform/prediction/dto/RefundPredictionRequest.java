@@ -1,10 +1,11 @@
-package com.refundplatform.prediction.application;
+package com.refundplatform.prediction.dto;
 
-import com.refundplatform.prediction.domain.RefundStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 import java.time.Instant;
+
+import com.refundplatform.prediction.model.RefundStatus;
 
 public record RefundPredictionRequest(
         @NotNull Integer taxYear,

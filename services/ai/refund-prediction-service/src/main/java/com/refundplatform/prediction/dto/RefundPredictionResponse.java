@@ -1,4 +1,4 @@
-package com.refundplatform.prediction.application;
+package com.refundplatform.prediction.dto;
 
 import java.time.LocalDate;
 

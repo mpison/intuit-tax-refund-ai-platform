@@ -1,9 +1,9 @@
-package com.refundplatform.prediction.infrastructure;
+package com.refundplatform.prediction.service;
 
-import com.refundplatform.prediction.application.RefundEtaPredictor;
-import com.refundplatform.prediction.application.RefundPredictionRequest;
-import com.refundplatform.prediction.application.RefundPredictionResponse;
-import com.refundplatform.prediction.domain.RefundStatus;
+import com.refundplatform.prediction.dto.RefundPredictionRequest;
+import com.refundplatform.prediction.dto.RefundPredictionResponse;
+import com.refundplatform.prediction.model.RefundStatus;
+
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
