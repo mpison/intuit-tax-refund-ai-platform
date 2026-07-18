@@ -1,78 +1,106 @@
-
 # Intuit Tax Refund AI Platform
 
-## Version
-**v0.3.0**
+## Current Version
+**v0.4.3**
 
 ## Overview
-Cloud-native microservices demo for secure tax refund tracking with:
-- Customer UI (React)
-- Keycloak authentication
-- Refund Status Service
-- IRS Simulator
-- Refund Prediction Service
-- PostgreSQL
-- Kubernetes (Kind)
+Cloud-native tax refund platform built with React, Spring Boot, Keycloak, PostgreSQL, PGVector, Spring AI, Ollama, Docker, and Kubernetes.
+
+## Features
+- Secure login with Keycloak
+- Latest refund status and amount
+- Refund lifecycle timeline
+- IRS Simulator refresh workflow
+- Refund ETA prediction
+- Spring AI RAG tax policy assistant
+- PGVector document retrieval
+- Floating chatbot with chat history
+- Intuit/TurboTax-inspired blue theme
 
 ## Architecture
-
 ```text
 Customer UI
-    |
-Keycloak
-    |
-Refund Status Service
-   |    |  +--> IRS Simulator
-   |
-   +--> Refund Prediction Service
-   |
-PostgreSQL
+  |-- Keycloak
+  |-- Refund Status Service
+  |     |-- PostgreSQL
+  |     |-- IRS Simulator
+  |     `-- Refund Prediction Service
+  `-- Tax Policy Assistant Service
+        |-- PGVector
+        `-- Ollama
 ```
 
-## Components
-- customer-ui
-- refund-status-service
-- refund-prediction-service
-- irs-simulator
-- postgres
-- keycloak
+## Services
+| Component | Port |
+|---|---:|
+| Customer UI | 3000 |
+| Keycloak | 8081 |
+| Refund Status Service | 8080 |
+| IRS Simulator | 8090 |
+| Refund Prediction Service | 8070 |
+| Tax Policy Assistant Service | 8060 |
+| PostgreSQL | 5432 |
+| Ollama | 11434 |
 
-## Docker Images
+## Image Versions
 | Image | Version |
 |---|---|
-| customer-ui | 0.3.0 |
-| refund-status-service | 0.3.0 |
-| refund-prediction-service | 0.3.0 |
-| irs-simulator | 0.2.0 |
+| customer-ui | 0.4.3 |
+| refund-status-service | 0.4.2 |
+| refund-prediction-service | 0.4.2 |
+| irs-simulator | 0.4.2 |
+| tax-policy-assistant-service | 0.4.1 |
 
-## Build
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\scripts\build-images-v0.3.ps1
+## Java Package Structure
+```text
+config
+controller
+dto
+exception
+model
+repository
+service
+client
 ```
 
-## Load
+## Prerequisites
+- Java 21+
+- Maven 3.9+
+- Docker Desktop
+- Kind
+- kubectl
+- PowerShell
+- Ollama
 
+## Ollama
 ```powershell
-.\scripts\load-images-v0.3.ps1
+ollama pull llama3.2
+ollama pull nomic-embed-text
+ollama list
 ```
 
 ## Deploy
-
 ```powershell
+kubectl kustomize infrastructure\kubernetes\overlays\local > $null
 kubectl apply -k infrastructure\kubernetes\overlays\local
+kubectl get pods -n refund-platform
+```
+
+## Port Forwards
+```powershell
+kubectl port-forward -n refund-platform svc/customer-ui 3000:80
+kubectl port-forward -n refund-platform svc/keycloak 8081:8080
+kubectl port-forward -n refund-platform svc/refund-status-service 8080:8080
+kubectl port-forward -n refund-platform svc/irs-simulator 8090:8090
+kubectl port-forward -n refund-platform svc/refund-prediction-service 8070:8070
+kubectl port-forward -n refund-platform svc/tax-policy-assistant-service 8060:8060
+kubectl port-forward -n refund-platform svc/postgres 5432:5432
+```
+
+## Policy Ingestion
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://localhost:8060/api/v1/admin/policies/ingest-defaults"
 ```
 
 ## Roadmap
-
-- v0.1.0 Core Platform
-- v0.2.0 IRS Simulator
-- v0.3.0 Prediction Service
-- v0.4.0 Spring AI + RAG
-- v0.5.0 MCP
-- v0.6.0 AI Gateway
-- v0.7.0 Kafka
-- v0.8.0 Observability
-- v0.9.0 Production Hardening
-- v1.0.0 Production Release
+See [ROADMAP.md](ROADMAP.md).

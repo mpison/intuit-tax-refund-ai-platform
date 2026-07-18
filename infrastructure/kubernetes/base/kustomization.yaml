@@ -10,3 +10,4 @@ resources:
   - customer-ui.yaml
   - irs-simulator.yaml
   - refund-prediction-service.yaml
+  - tax-policy-assistant-service.yaml

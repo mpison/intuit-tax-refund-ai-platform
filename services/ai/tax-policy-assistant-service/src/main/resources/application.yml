@@ -1,0 +1,46 @@
+server:
+  port: 8060
+
+spring:
+  application:
+    name: tax-policy-assistant-service
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/refund_platform}
+    username: ${DATABASE_USERNAME:refund_user}
+    password: ${DATABASE_PASSWORD:refund_password}
+
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+
+      chat:
+        options:
+          model: ${OLLAMA_CHAT_MODEL:llama3.2}
+          temperature: 0.2
+
+      embedding:
+        options:
+          model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        schema-name: public
+        table-name: vector_store
+        dimensions: 768
+        distance-type: COSINE_DISTANCE
+        index-type: HNSW
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+
+  endpoint:
+    health:
+      probes:
+        enabled: true

@@ -51,7 +51,7 @@ spec:
               readOnly: true
       containers:
         - name: refund-status-service
-          image: refund-status-service:0.3.0
+          image: refund-status-service:0.4.2
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

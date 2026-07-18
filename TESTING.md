@@ -1,37 +1,65 @@
-
 # Testing Guide
 
-## Verify
-
+## Kubernetes
 ```powershell
 kubectl get pods -n refund-platform
 kubectl get deployments -n refund-platform
 ```
 
-## Prediction
-
+## Authentication
 ```powershell
-kubectl port-forward -n refund-platform svc/refund-prediction-service 8070:8070
+$response = Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8081/realms/refund-platform/protocol/openid-connect/token" `
+  -ContentType "application/x-www-form-urlencoded" `
+  -Body @{
+    client_id="customer-ui"
+    grant_type="password"
+    username="mel.demo"
+    password="Demo123!"
+  }
+$accessToken = $response.access_token
 ```
 
-POST `/api/v1/predictions/refund-eta`
+## Latest Refund
+```powershell
+Invoke-RestMethod -Method Get `
+  -Uri "http://localhost:8080/api/v1/refunds/latest" `
+  -Headers @{ Authorization = "Bearer $accessToken" }
+```
 
-Verify:
-- predictedRefundDate
-- estimatedDaysRemaining
-- confidenceScore
-- explanation
+## IRS Simulator
+```powershell
+Invoke-RestMethod http://localhost:8090/api/v1/irs/refunds/IRS-DEMO-2025-0001
+```
 
-## UI
-- Login
-- Refund page
-- Timeline
-- Prediction card
-- Refresh from IRS
+## Prediction
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8070/api/v1/predictions/refund-eta" `
+  -ContentType "application/json" `
+  -Body '{"taxYear":2025,"filedAt":"2026-04-10T10:00:00Z","currentStatus":"PROCESSING","refundAmount":2850.00,"lastExternalSyncAt":"2026-07-18T02:00:00Z"}'
+```
 
-## Database
-Verify:
-- app_users
-- tax_returns
-- refund_statuses
-- refund_status_history
+## Policy Ingestion
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8060/api/v1/admin/policies/ingest-defaults"
+```
+
+## Policy Chat
+```powershell
+Invoke-RestMethod -Method Post `
+  -Uri "http://localhost:8060/api/v1/assistant/chat" `
+  -ContentType "application/json" `
+  -Body '{"conversationId":"test-1","question":"Why can a refund be delayed?"}'
+```
+
+## UI Regression
+- Login works.
+- Refund timeline renders.
+- Prediction card renders.
+- IRS refresh works.
+- Floating chatbot opens and closes.
+- Chat history persists.
+- Clear history works.
+- Blue theme is visible.

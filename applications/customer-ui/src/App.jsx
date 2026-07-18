@@ -10,6 +10,7 @@ import {
 } from "./api/refundApi";
 
 import PredictionCard from "./components/PredictionCard";
+import PolicyAssistant from "./components/PolicyAssistant";
 
 const refundStages =
     [
@@ -310,6 +311,8 @@ export default function App(
                             <PredictionCard
                                 prediction={prediction}
                             />
+
+                            <PolicyAssistant />
 
                             <section className="card">
 
