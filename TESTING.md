@@ -1,47 +1,37 @@
-# v0.2.0 Testing
 
-## Health
+# Testing Guide
 
-```powershell
-Invoke-RestMethod http://localhost:8090/actuator/health
-Invoke-RestMethod http://localhost:8080/actuator/health
-```
-
-## IRS Lookup
+## Verify
 
 ```powershell
-Invoke-RestMethod `
-  http://localhost:8090/api/v1/irs/refunds/IRS-DEMO-2025-0001
+kubectl get pods -n refund-platform
+kubectl get deployments -n refund-platform
 ```
 
-## Update IRS Status
+## Prediction
 
 ```powershell
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "http://localhost:8090/api/v1/demo/irs/refunds/IRS-DEMO-2025-0001/status" `
-  -ContentType "application/json" `
-  -Body '{
-    "status": "APPROVED",
-    "officialRefundDate": "2026-07-24"
-  }'
+kubectl port-forward -n refund-platform svc/refund-prediction-service 8070:8070
 ```
 
-## UI Test
+POST `/api/v1/predictions/refund-eta`
 
-1. Open `http://localhost:3000`.
-2. Login.
-3. Click **Refresh from IRS**.
-4. Confirm status changes to **Approved**.
-5. Confirm the timeline advances.
+Verify:
+- predictedRefundDate
+- estimatedDaysRemaining
+- confidenceScore
+- explanation
 
-## Database History
+## UI
+- Login
+- Refund page
+- Timeline
+- Prediction card
+- Refresh from IRS
 
-```powershell
-kubectl exec -it postgres-0 `
-  -n refund-platform `
-  -- psql `
-  -U refund_user `
-  -d refund_platform `
-  -c "SELECT * FROM refund_status_history ORDER BY changed_at DESC;"
-```
+## Database
+Verify:
+- app_users
+- tax_returns
+- refund_statuses
+- refund_status_history

@@ -9,3 +9,4 @@ resources:
   - refund-status-service.yaml
   - customer-ui.yaml
   - irs-simulator.yaml
+  - refund-prediction-service.yaml

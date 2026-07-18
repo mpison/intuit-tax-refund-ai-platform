@@ -57,3 +57,26 @@ export async function refreshRefund(
 
     return response.json();
 }
+
+
+export async function getRefundPrediction(
+    taxReturnId,
+    accessToken
+) {
+    const response = await fetch(
+        `${refundApiUrl}/api/v1/refunds/${taxReturnId}/prediction`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            `Prediction API failed with status ${response.status}`
+        );
+    }
+
+    return response.json();
+}

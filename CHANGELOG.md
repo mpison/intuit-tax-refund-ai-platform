@@ -1,19 +1,26 @@
+
 # Changelog
 
-## v0.2.0
+## v0.3.0
 
 ### Added
-- IRS Simulator service.
-- Refund refresh use case.
-- Refund status history persistence.
-- External refund ID support.
-- Demo IRS status update endpoint.
-- UI refresh-from-IRS workflow.
-- Kubernetes IRS deployment.
-- Build/load PowerShell scripts.
-- Migration and test documentation.
+- Refund Prediction Service
+- ETA prediction API
+- Prediction UI
+- Kubernetes deployment
+- Build/load scripts
 
-### Changed
-- Backend image: `refund-status-service:0.2.0`.
-- UI image: `customer-ui:0.2.0`.
-- Refund service now calls IRS Simulator through Kubernetes DNS.
+### Updated
+- refund-status-service image -> 0.3.0
+- customer-ui image -> 0.3.0
+
+### Notes
+Prediction is currently deterministic and designed for future ML replacement.
+
+## v0.2.0
+- IRS Simulator
+- Refresh workflow
+- Refund history
+
+## v0.1.0
+- Initial platform

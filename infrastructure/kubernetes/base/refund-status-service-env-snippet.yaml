@@ -1,3 +1,0 @@
-# Merge this environment variable into the refund-status-service container.
-- name: IRS_SIMULATOR_BASE_URL
-  value: http://irs-simulator:8090

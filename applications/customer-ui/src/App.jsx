@@ -5,8 +5,11 @@ import React, {
 
 import {
     getLatestRefund,
+    getRefundPrediction,
     refreshRefund
 } from "./api/refundApi";
+
+import PredictionCard from "./components/PredictionCard";
 
 const refundStages =
     [
@@ -58,6 +61,12 @@ export default function App(
         useState(true);
 
     const [
+        prediction,
+        setPrediction
+    ] =
+        useState(null);
+
+    const [
         isRefreshing,
         setIsRefreshing
     ] =
@@ -92,6 +101,16 @@ export default function App(
 
             setRefund(
                 latestRefund
+            );
+
+            const latestPrediction =
+                await getRefundPrediction(
+                    latestRefund.taxReturnId,
+                    keycloak.token
+                );
+
+            setPrediction(
+                latestPrediction
             );
         }
         catch (error) {
@@ -287,6 +306,10 @@ export default function App(
                                 </button>
 
                             </section>
+
+                            <PredictionCard
+                                prediction={prediction}
+                            />
 
                             <section className="card">
 

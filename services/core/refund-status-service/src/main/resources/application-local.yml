@@ -14,3 +14,6 @@ spring:
 integrations:
   irs-simulator:
     base-url: http://localhost:8090
+
+  refund-prediction:
+    base-url: http://localhost:8070

@@ -51,7 +51,7 @@ spec:
               readOnly: true
       containers:
         - name: refund-status-service
-          image: refund-status-service:0.2.0
+          image: refund-status-service:0.3.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -77,6 +77,8 @@ spec:
               value: http://keycloak:8080/realms/refund-platform/protocol/openid-connect/certs
             - name: IRS_SIMULATOR_BASE_URL
               value: http://irs-simulator:8090
+            - name: REFUND_PREDICTION_BASE_URL
+              value: http://refund-prediction-service:8070
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

@@ -14,3 +14,6 @@ spring:
 integrations:
   irs-simulator:
     base-url: ${IRS_SIMULATOR_BASE_URL:http://irs-simulator:8090}
+
+  refund-prediction:
+    base-url: ${REFUND_PREDICTION_BASE_URL:http://refund-prediction-service:8070}
