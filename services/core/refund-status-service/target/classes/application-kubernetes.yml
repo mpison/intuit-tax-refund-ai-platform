@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/refund_platform}
+    username: ${DATABASE_USERNAME:refund_user}
+    password: ${DATABASE_PASSWORD:refund_password}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081/realms/refund-platform}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://keycloak:8080/realms/refund-platform/protocol/openid-connect/certs}
+
+logging:
+  level:
+    com.refundplatform.refund: INFO
+    org.springframework.security: INFO
