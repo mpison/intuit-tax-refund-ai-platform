@@ -1,7 +1,8 @@
-package com.refundplatform.irs.presentation;
+package com.refundplatform.irs.controller;
 
-import com.refundplatform.irs.application.IrsRefundRecord;
-import com.refundplatform.irs.application.IrsRefundStore;
+import com.refundplatform.irs.dto.IrsRefundRecord;
+import com.refundplatform.irs.dto.UpdateIrsRefundRequest;
+import com.refundplatform.irs.service.IrsRefundStore;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

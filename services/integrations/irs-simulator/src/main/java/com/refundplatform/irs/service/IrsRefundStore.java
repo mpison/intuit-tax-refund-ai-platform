@@ -1,6 +1,7 @@
-package com.refundplatform.irs.application;
+package com.refundplatform.irs.service;
 
-import com.refundplatform.irs.domain.IrsRefundStatus;
+import com.refundplatform.irs.dto.IrsRefundRecord;
+import com.refundplatform.irs.model.IrsRefundStatus;
 
 import org.springframework.stereotype.Service;
 

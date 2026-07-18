@@ -1,8 +1,8 @@
-package com.refundplatform.irs.presentation;
-
-import com.refundplatform.irs.domain.IrsRefundStatus;
+package com.refundplatform.irs.dto;
 
 import java.time.LocalDate;
+
+import com.refundplatform.irs.model.IrsRefundStatus;
 
 public record UpdateIrsRefundRequest(
 

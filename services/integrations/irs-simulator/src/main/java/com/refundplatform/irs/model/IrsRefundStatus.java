@@ -1,4 +1,4 @@
-package com.refundplatform.irs.domain;
+package com.refundplatform.irs.model;
 
 public enum IrsRefundStatus {
 
