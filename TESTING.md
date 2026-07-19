@@ -63,3 +63,40 @@ Invoke-RestMethod -Method Post `
 - Chat history persists.
 - Clear history works.
 - Blue theme is visible.
+
+
+# Testing v0.5.2
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\scriptspply-v0.5.2-project-updates.ps1
+.\scriptsuild-images-v0.5.2.ps1
+.\scripts\load-images-v0.5.2.ps1
+kubectl apply -k infrastructure\kubernetes\overlays\local
+```
+
+Verify:
+
+```sql
+SELECT * FROM flyway_schema_history ORDER BY installed_rank;
+```
+
+Expected: baseline version 3 and successful versions 4 and 5.
+
+# Testing v0.5.2
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\scriptspply-v0.5.2-project-updates.ps1
+.\scriptsuild-images-v0.5.2.ps1
+.\scripts\load-images-v0.5.2.ps1
+kubectl apply -k infrastructure\kubernetes\overlays\local
+```
+
+Verify:
+
+```sql
+SELECT * FROM flyway_schema_history ORDER BY installed_rank;
+```
+
+Expected: baseline version 3 and successful versions 4 and 5.

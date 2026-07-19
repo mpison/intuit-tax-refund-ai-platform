@@ -1,8 +1,48 @@
+﻿server:
+  port: 8080
+
 spring:
+  application:
+    name: refund-status-service
+
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/refund_platform}
     username: ${DATABASE_USERNAME:refund_user}
     password: ${DATABASE_PASSWORD:refund_password}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      pool-name: RefundStatusHikariPool
+
+  #flyway:
+  #  enabled: true
+    #  locations: classpath:db/migration
+
+    # The current database already contains the original v1-v3 schema.
+    #baseline-on-migrate: true
+    #baseline-version: 3
+    #baseline-description: Existing refund platform schema
+
+    #validate-on-migrate: true
+    #clean-disabled: true
+
+  jpa:
+    open-in-view: false
+
+    hibernate:
+      ddl-auto: validate
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
 
   security:
     oauth2:
@@ -17,3 +57,34 @@ integrations:
 
   refund-prediction:
     base-url: ${REFUND_PREDICTION_BASE_URL:http://refund-prediction-service:8070}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - prometheus
+
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+  health:
+    livenessstate:
+      enabled: true
+
+    readinessstate:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.refundplatform.refund: DEBUG
+    #org.flywaydb: DEBUG
+    #org.springframework.boot.flyway: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO

@@ -1,4 +1,6 @@
-spring:
+﻿spring:
+  config:
+    import: optional:classpath:application-flyway.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/refund_platform
     username: refund_user
@@ -17,3 +19,4 @@ integrations:
 
   refund-prediction:
     base-url: http://localhost:8070
+

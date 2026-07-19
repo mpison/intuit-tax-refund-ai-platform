@@ -1,7 +1,9 @@
-server:
+﻿server:
   port: 8080
 
 spring:
+  #config:
+  ##  import: optional:classpath:application-flyway.yml
   application:
     name: refund-status-service
 
@@ -31,3 +33,4 @@ management:
 logging:
   level:
     root: INFO
+

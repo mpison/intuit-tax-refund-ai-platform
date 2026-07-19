@@ -11,6 +11,7 @@ import {
 
 import PredictionCard from "./components/PredictionCard";
 import PolicyAssistant from "./components/PolicyAssistant";
+import CreateFiledReturn from "./components/CreateFiledReturn";
 import UserProfile from "./components/UserProfile";
 
 const refundStages =
@@ -81,6 +82,18 @@ export default function App(
         useState("");
 
     const [
+        hasNoRefund,
+        setHasNoRefund
+    ] =
+        useState(false);
+
+    const [
+        isCreatingReturn,
+        setIsCreatingReturn
+    ] =
+        useState(false);
+
+    const [
         activeView,
         setActiveView
     ] =
@@ -111,6 +124,14 @@ export default function App(
                 latestRefund
             );
 
+            setHasNoRefund(
+                false
+            );
+
+            setIsCreatingReturn(
+                false
+            );
+
             const latestPrediction =
                 await getRefundPrediction(
                     latestRefund.taxReturnId,
@@ -123,9 +144,40 @@ export default function App(
         }
         catch (error) {
 
-            setErrorMessage(
-                error.message
-            );
+            const errorText =
+                String(
+                    error?.message
+                    || ""
+                );
+
+            if (
+                error?.status === 404
+                || errorText.includes("404")
+                || errorText.toLowerCase().includes("not found")
+            ) {
+
+                setRefund(
+                    null
+                );
+
+                setPrediction(
+                    null
+                );
+
+                setHasNoRefund(
+                    true
+                );
+
+                setErrorMessage(
+                    ""
+                );
+            }
+            else {
+
+                setErrorMessage(
+                    errorText
+                );
+            }
         }
         finally {
 
@@ -210,7 +262,7 @@ export default function App(
                     <button
                         className={
                             activeView === "refund"
-                                ? ""
+                                ? "primaryNavButton"
                                 : "secondaryButton"
                         }
                         onClick={
@@ -218,7 +270,8 @@ export default function App(
                                 setActiveView(
                                     "refund"
                                 )
-                        }>
+                        }
+                        type="button">
 
                         Refund
 
@@ -227,7 +280,7 @@ export default function App(
                     <button
                         className={
                             activeView === "profile"
-                                ? ""
+                                ? "primaryNavButton"
                                 : "secondaryButton"
                         }
                         onClick={
@@ -235,7 +288,8 @@ export default function App(
                                 setActiveView(
                                     "profile"
                                 )
-                        }>
+                        }
+                        type="button">
 
                         Profile
 
@@ -246,7 +300,8 @@ export default function App(
                         onClick={
                             () =>
                                 keycloak.logout()
-                        }>
+                        }
+                        type="button">
 
                         Sign out
 
@@ -270,20 +325,6 @@ export default function App(
                             </h2>
 
                             <p>
-                                No Tax Return Found
-
-                                Welcome to Refund Platform!
-
-                                We couldn't find a tax return associated
-                                with your account.
-
-                                This is expected for newly registered users.
-
-                                Tax return submission will be available
-                                in the next release.
-
-                                [ Learn More ]
-
                                 {errorMessage}
                             </p>
 
@@ -301,6 +342,63 @@ export default function App(
                             Loading refund...
 
                         </section>
+                    )
+                }
+
+                {
+                    activeView === "refund"
+                    && hasNoRefund
+                    && !isLoading
+                    && !isCreatingReturn
+                    && (
+
+                        <section className="card emptyStateCard">
+
+                            <p className="eyebrow">
+                                Welcome to Refund Platform
+                            </p>
+
+                            <h2>
+                                No filed return found
+                            </h2>
+
+                            <p>
+                                Add a filed return to begin tracking
+                                your refund.
+                            </p>
+
+                            <button
+                                onClick={
+                                    () =>
+                                        setIsCreatingReturn(
+                                            true
+                                        )
+                                }>
+
+                                Add filed return
+
+                            </button>
+
+                        </section>
+                    )
+                }
+
+                {
+                    activeView === "refund"
+                    && hasNoRefund
+                    && isCreatingReturn
+                    && (
+
+                        <CreateFiledReturn
+                            keycloak={keycloak}
+                            onCancel={
+                                () =>
+                                    setIsCreatingReturn(
+                                        false
+                                    )
+                            }
+                            onCreated={loadRefund}
+                        />
                     )
                 }
 
