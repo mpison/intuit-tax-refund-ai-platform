@@ -13,6 +13,10 @@ import PredictionCard from "./components/PredictionCard";
 import PolicyAssistant from "./components/PolicyAssistant";
 import CreateFiledReturn from "./components/CreateFiledReturn";
 import UserProfile from "./components/UserProfile";
+import RefundTimeline from "./components/RefundTimeline";
+import RefundHistory from "./components/RefundHistory";
+import EmptyRefundState from "./components/EmptyRefundState";
+import { getRefundHistory } from "./api/refundHistoryApi";
 
 const refundStages =
     [
@@ -99,6 +103,24 @@ export default function App(
     ] =
         useState("refund");
 
+    const [
+        refundHistory,
+        setRefundHistory
+    ] =
+        useState([]);
+
+    const [
+        isHistoryLoading,
+        setIsHistoryLoading
+    ] =
+        useState(false);
+
+    const [
+        historyError,
+        setHistoryError
+    ] =
+        useState("");
+
     async function loadRefund() {
 
         try {
@@ -141,6 +163,10 @@ export default function App(
             setPrediction(
                 latestPrediction
             );
+
+            await loadRefundHistory(
+                latestRefund.taxReturnId
+            );
         }
         catch (error) {
 
@@ -164,6 +190,10 @@ export default function App(
                     null
                 );
 
+                setRefundHistory(
+                    []
+                );
+
                 setHasNoRefund(
                     true
                 );
@@ -182,6 +212,53 @@ export default function App(
         finally {
 
             setIsLoading(
+                false
+            );
+        }
+    }
+
+    async function loadRefundHistory(
+        taxReturnId
+    ) {
+
+        try {
+
+            setIsHistoryLoading(
+                true
+            );
+
+            setHistoryError(
+                ""
+            );
+
+            await keycloak.updateToken(
+                30
+            );
+
+            const historyResponse =
+                await getRefundHistory(
+                    taxReturnId,
+                    keycloak.token
+                );
+
+            setRefundHistory(
+                historyResponse.events
+                || []
+            );
+        }
+        catch (error) {
+
+            setRefundHistory(
+                []
+            );
+
+            setHistoryError(
+                error.message
+            );
+        }
+        finally {
+
+            setIsHistoryLoading(
                 false
             );
         }
@@ -352,34 +429,14 @@ export default function App(
                     && !isCreatingReturn
                     && (
 
-                        <section className="card emptyStateCard">
-
-                            <p className="eyebrow">
-                                Welcome to Refund Platform
-                            </p>
-
-                            <h2>
-                                No filed return found
-                            </h2>
-
-                            <p>
-                                Add a filed return to begin tracking
-                                your refund.
-                            </p>
-
-                            <button
-                                onClick={
-                                    () =>
-                                        setIsCreatingReturn(
-                                            true
-                                        )
-                                }>
-
-                                Add filed return
-
-                            </button>
-
-                        </section>
+                        <EmptyRefundState
+                            onCreate={
+                                () =>
+                                    setIsCreatingReturn(
+                                        true
+                                    )
+                            }
+                        />
                     )
                 }
 
@@ -472,69 +529,32 @@ export default function App(
                                 prediction={prediction}
                             />
 
-                            <section className="card">
+                            <RefundTimeline
+                                currentStatus={
+                                    refund.status
+                                }
+                            />
 
-                                <h2>
-                                    Refund progress
-                                </h2>
-
-                                <div className="refundTimeline">
-
-                                    {
-                                        refundStages.map(
-                                            (
-                                                stage,
-                                                stageIndex
-                                            ) => (
-
-                                                <div
-                                                    className="refundStage"
-                                                    key={stage}>
-
-                                                    <div
-                                                        className={
-                                                            stageIndex
-                                                                <= currentStageIndex
-                                                                ? "refundStageMarker active"
-                                                                : "refundStageMarker"
-                                                        }>
-
-                                                        {
-                                                            stageIndex
-                                                                < currentStageIndex
-                                                                ? "✓"
-                                                                : stageIndex
-                                                                    === currentStageIndex
-                                                                    ? "●"
-                                                                    : ""
-                                                        }
-
-                                                    </div>
-
-                                                    <div
-                                                        className={
-                                                            stageIndex
-                                                                === currentStageIndex
-                                                                ? "refundStageLabel current"
-                                                                : "refundStageLabel"
-                                                        }>
-
-                                                        {
-                                                            refundStageLabels[
-                                                                stage
-                                                            ]
-                                                        }
-
-                                                    </div>
-
-                                                </div>
-                                            )
+                            <RefundHistory
+                                events={
+                                    refundHistory
+                                }
+                                errorMessage={
+                                    historyError
+                                }
+                                isLoading={
+                                    isHistoryLoading
+                                }
+                                onRefresh={
+                                    () =>
+                                        loadRefundHistory(
+                                            refund.taxReturnId
                                         )
-                                    }
-
-                                </div>
-
-                            </section>
+                                }
+                                statusLabels={
+                                    refundStageLabels
+                                }
+                            />
 
                             <section className="detailsGrid">
 

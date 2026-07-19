@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: customer-ui
-          image: customer-ui:0.5.2
+          image: customer-ui:0.5.3
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

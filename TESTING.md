@@ -100,3 +100,42 @@ SELECT * FROM flyway_schema_history ORDER BY installed_rank;
 ```
 
 Expected: baseline version 3 and successful versions 4 and 5.
+
+# Test v0.5.3 Backend
+
+Apply the database history table and trigger:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\scripts\apply-v0.5.3-backend.ps1
+```
+
+Build and load:
+
+```powershell
+.\scripts\build-backend-v0.5.3.ps1
+.\scripts\load-backend-v0.5.3.ps1
+```
+
+Update the Kubernetes image to:
+
+```yaml
+image: refund-status-service:0.5.3
+```
+
+Apply the deployment and restart the pod.
+
+Test:
+
+```http
+GET /api/v1/refunds/{taxReturnId}/history
+Authorization: Bearer <CUSTOMER_TOKEN>
+```
+
+Verify the database:
+
+```sql
+SELECT *
+FROM refund_status_history
+ORDER BY changed_at DESC;
+```
