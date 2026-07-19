@@ -1,10 +1,12 @@
-package com.refundplatform.refund.infrastructure.persistence;
+package com.refundplatform.refund.repository;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.UUID;
+import com.refundplatform.refund.model.RefundStatusEntity;
 
 @Repository
 public interface SpringDataRefundStatusRepository

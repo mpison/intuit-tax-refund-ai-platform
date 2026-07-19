@@ -11,6 +11,7 @@ import {
 
 import PredictionCard from "./components/PredictionCard";
 import PolicyAssistant from "./components/PolicyAssistant";
+import UserProfile from "./components/UserProfile";
 
 const refundStages =
     [
@@ -78,6 +79,12 @@ export default function App(
         setErrorMessage
     ] =
         useState("");
+
+    const [
+        activeView,
+        setActiveView
+    ] =
+        useState("refund");
 
     async function loadRefund() {
 
@@ -198,23 +205,62 @@ export default function App(
 
                 </div>
 
-                <button
-                    className="secondaryButton"
-                    onClick={
-                        () =>
-                            keycloak.logout()
-                    }>
+                <nav className="navActions">
 
-                    Sign out
+                    <button
+                        className={
+                            activeView === "refund"
+                                ? ""
+                                : "secondaryButton"
+                        }
+                        onClick={
+                            () =>
+                                setActiveView(
+                                    "refund"
+                                )
+                        }>
 
-                </button>
+                        Refund
+
+                    </button>
+
+                    <button
+                        className={
+                            activeView === "profile"
+                                ? ""
+                                : "secondaryButton"
+                        }
+                        onClick={
+                            () =>
+                                setActiveView(
+                                    "profile"
+                                )
+                        }>
+
+                        Profile
+
+                    </button>
+
+                    <button
+                        className="secondaryButton"
+                        onClick={
+                            () =>
+                                keycloak.logout()
+                        }>
+
+                        Sign out
+
+                    </button>
+
+                </nav>
 
             </header>
 
             <main className="content">
 
                 {
-                    errorMessage
+                    activeView === "refund"
+                    && errorMessage
                     && (
 
                         <section className="card errorCard">
@@ -224,6 +270,20 @@ export default function App(
                             </h2>
 
                             <p>
+                                No Tax Return Found
+
+                                Welcome to Refund Platform!
+
+                                We couldn't find a tax return associated
+                                with your account.
+
+                                This is expected for newly registered users.
+
+                                Tax return submission will be available
+                                in the next release.
+
+                                [ Learn More ]
+
                                 {errorMessage}
                             </p>
 
@@ -232,7 +292,8 @@ export default function App(
                 }
 
                 {
-                    isLoading
+                    activeView === "refund"
+                    && isLoading
                     && (
 
                         <section className="card">
@@ -244,7 +305,8 @@ export default function App(
                 }
 
                 {
-                    refund
+                    activeView === "refund"
+                    && refund
                     && !isLoading
                     && (
 
@@ -311,8 +373,6 @@ export default function App(
                             <PredictionCard
                                 prediction={prediction}
                             />
-
-                            <PolicyAssistant />
 
                             <section className="card">
 
@@ -439,7 +499,21 @@ export default function App(
                     )
                 }
 
+                {
+                    activeView === "profile"
+                    && (
+
+                        <UserProfile
+                            accessToken={
+                                keycloak.token
+                            }
+                        />
+                    )
+                }
+
             </main>
+
+            <PolicyAssistant />
 
         </div>
     );
