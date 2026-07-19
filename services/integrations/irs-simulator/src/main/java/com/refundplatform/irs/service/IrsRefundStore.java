@@ -2,50 +2,86 @@ package com.refundplatform.irs.service;
 
 import com.refundplatform.irs.dto.IrsRefundRecord;
 import com.refundplatform.irs.model.IrsRefundStatus;
+import com.refundplatform.irs.repository.IrsRefundRepository;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 @Service
 public class IrsRefundStore {
 
-    private final Map<String, IrsRefundRecord> records =
-            new ConcurrentHashMap<>();
+    private final IrsRefundRepository irsRefundRepository;
 
-    public IrsRefundStore() {
+    public IrsRefundStore(
+            IrsRefundRepository irsRefundRepository) {
 
-        records.put(
-                "IRS-DEMO-2025-0001",
-                new IrsRefundRecord(
-                        "IRS-DEMO-2025-0001",
-                        IrsRefundStatus.PROCESSING,
-                        null,
-                        Instant.now()
-                )
-        );
+        this.irsRefundRepository =
+                irsRefundRepository;
     }
 
     public IrsRefundRecord find(
             String externalRefundId) {
 
-        IrsRefundRecord record =
-                records.get(
+        return irsRefundRepository
+                .findById(
                         externalRefundId
+                )
+                .orElseThrow(
+                        () ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "IRS refund record was not found: "
+                                                + externalRefundId
+                                )
                 );
+    }
 
-        if (record == null) {
+    public List<IrsRefundRecord> findAll() {
 
-            throw new IllegalArgumentException(
-                    "IRS refund record was not found: "
+        return irsRefundRepository.findAll();
+    }
+
+    public IrsRefundRecord create(
+            String externalRefundId,
+            IrsRefundStatus status,
+            LocalDate officialRefundDate) {
+
+        if (
+                externalRefundId == null
+                || externalRefundId.isBlank()
+        ) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "externalRefundId is required"
+            );
+        }
+
+        if (
+                irsRefundRepository.findById(
+                        externalRefundId.trim()
+                )
+                .isPresent()
+        ) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "IRS refund record already exists: "
                             + externalRefundId
             );
         }
 
-        return record;
+        return irsRefundRepository.save(
+                externalRefundId.trim(),
+                status == null
+                        ? IrsRefundStatus.FILED
+                        : status,
+                officialRefundDate
+        );
     }
 
     public IrsRefundRecord update(
@@ -53,19 +89,35 @@ public class IrsRefundStore {
             IrsRefundStatus status,
             LocalDate officialRefundDate) {
 
-        IrsRefundRecord record =
-                new IrsRefundRecord(
-                        externalRefundId,
-                        status,
-                        officialRefundDate,
-                        Instant.now()
-                );
+        if (status == null) {
 
-        records.put(
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "status is required"
+            );
+        }
+
+        return irsRefundRepository.save(
                 externalRefundId,
-                record
+                status,
+                officialRefundDate
         );
+    }
 
-        return record;
+    public void delete(
+            String externalRefundId) {
+
+        if (
+                !irsRefundRepository.deleteById(
+                        externalRefundId
+                )
+        ) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "IRS refund record was not found: "
+                            + externalRefundId
+            );
+        }
     }
 }

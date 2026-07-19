@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: irs-simulator-schema-v054
+  namespace: refund-platform
+data:
+  V7__irs_simulator_records.sql: |
+    CREATE TABLE IF NOT EXISTS irs_refund_records (
+        external_refund_id VARCHAR(100) PRIMARY KEY,
+        status VARCHAR(40) NOT NULL,
+        official_refund_date DATE,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_irs_refund_records_status_updated
+        ON irs_refund_records (
+            status,
+            updated_at DESC
+        );
+
+    INSERT INTO irs_refund_records (
+        external_refund_id,
+        status,
+        official_refund_date,
+        updated_at
+    )
+    VALUES (
+        'IRS-DEMO-2025-0001',
+        'PROCESSING',
+        NULL,
+        NOW()
+    )
+    ON CONFLICT (external_refund_id)
+    DO NOTHING;
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: irs-simulator-schema-v054
+  namespace: refund-platform
+spec:
+  backoffLimit: 3
+
+  template:
+    metadata:
+      labels:
+        app: irs-simulator-schema-v054
+
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: postgres-migration
+          image: postgres:17-alpine
+
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+
+              until pg_isready                 -h postgres                 -p 5432                 -U "$POSTGRES_USER"                 -d "$POSTGRES_DB"; do
+
+                echo "Waiting for PostgreSQL..."
+                sleep 3
+              done
+
+              PGPASSWORD="$POSTGRES_PASSWORD" psql                 -v ON_ERROR_STOP=1                 -h postgres                 -p 5432                 -U "$POSTGRES_USER"                 -d "$POSTGRES_DB"                 -f /migration/V7__irs_simulator_records.sql
+
+          volumeMounts:
+            - name: migration
+              mountPath: /migration
+              readOnly: true
+
+      volumes:
+        - name: migration
+          configMap:
+            name: irs-simulator-schema-v054

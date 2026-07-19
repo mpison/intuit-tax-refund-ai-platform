@@ -1,0 +1,19 @@
+{
+  "name": "irs-admin-ui",
+  "private": true,
+  "version": "0.5.4",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3100",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3100"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "vite": "^6.3.5",
+    "typescript": "^5.8.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {}
+}

@@ -5,6 +5,18 @@ spring:
   application:
     name: irs-simulator
 
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/refund_platform}
+    username: ${DATABASE_USERNAME:refund_user}
+    password: ${DATABASE_PASSWORD:refund_password}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 5
+      connection-timeout: 30000
+      pool-name: IrsSimulatorHikariPool
+
 management:
   endpoints:
     web:
@@ -17,3 +29,4 @@ management:
     health:
       probes:
         enabled: true
+      show-details: always

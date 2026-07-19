@@ -1,0 +1,288 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    color: #17224d;
+    background: #f5f7fc;
+}
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(35, 108, 255, 0.1),
+            transparent 32%
+        ),
+        #f5f7fc;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: #236cff;
+    color: white;
+    cursor: pointer;
+    font-weight: 800;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 40px;
+    border-bottom: 1px solid #dde2ee;
+    background: rgba(255, 255, 255, 0.96);
+}
+
+.brand {
+    color: #173f8f;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.subtitle {
+    margin-top: 4px;
+    color: #69718b;
+}
+
+.secondaryButton {
+    background: #eaf2ff;
+    color: #173f8f;
+}
+
+.content {
+    width: min(1220px, calc(100% - 32px));
+    margin: 34px auto;
+}
+
+.hero,
+.card {
+    margin-bottom: 20px;
+    padding: 28px;
+    border: 1px solid #dde2ee;
+    border-radius: 22px;
+    background: white;
+    box-shadow: 0 12px 30px rgba(23, 34, 77, 0.09);
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    color: white;
+    background:
+        linear-gradient(
+            135deg,
+            #30166f,
+            #236cff
+        );
+}
+
+.hero h1 {
+    margin: 8px 0;
+}
+
+.eyebrow {
+    margin: 0;
+    font-weight: 800;
+    opacity: 0.86;
+}
+
+.demoBadge {
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.8fr) minmax(480px, 1.4fr);
+    gap: 20px;
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.formGrid label {
+    display: grid;
+    gap: 8px;
+    color: #17224d;
+    font-weight: 800;
+}
+
+.formGrid input,
+.formGrid select,
+.searchInput {
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #ccd4e4;
+    border-radius: 10px;
+    background: white;
+}
+
+.formGrid input:focus,
+.formGrid select:focus,
+.searchInput:focus {
+    outline: 3px solid rgba(35, 108, 255, 0.12);
+    border-color: #236cff;
+}
+
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.sectionHeader h2,
+.sectionHeader p {
+    margin: 0;
+}
+
+.sectionHeader p {
+    margin-top: 5px;
+    color: #69718b;
+}
+
+.refundTable {
+    display: grid;
+    gap: 10px;
+}
+
+.refundRow {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #dde2ee;
+    border-radius: 14px;
+}
+
+.refundRow.selected {
+    border-color: #236cff;
+    box-shadow: 0 0 0 3px rgba(35, 108, 255, 0.08);
+}
+
+.rowMain {
+    display: grid;
+    grid-template-columns: minmax(160px, 1fr) auto minmax(140px, auto);
+    align-items: center;
+    gap: 12px;
+    padding: 4px;
+    background: transparent;
+    color: #17224d;
+    text-align: left;
+}
+
+.rowMain small {
+    color: #69718b;
+}
+
+.deleteButton {
+    background: #fff0f0;
+    color: #b42318;
+}
+
+.status {
+    display: inline-flex;
+    justify-content: center;
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #eaf2ff;
+    color: #173f8f;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.status-APPROVED,
+.status-REFUND_SENT,
+.status-REFUND_RECEIVED {
+    background: #e9f8ef;
+    color: #197a50;
+}
+
+.status-ACTION_REQUIRED,
+.status-ADDITIONAL_REVIEW {
+    background: #fff4d8;
+    color: #8a5b00;
+}
+
+.errorCard {
+    border-color: #f0b6b2;
+    background: #fff6f5;
+    color: #9f2f2a;
+}
+
+.successCard {
+    border-color: #bce3cd;
+    background: #f1fbf5;
+    color: #197a50;
+    font-weight: 800;
+}
+
+.editorCard {
+    max-width: 820px;
+    margin-inline: auto;
+}
+
+@media (max-width: 900px) {
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 680px) {
+    .topbar,
+    .hero,
+    .sectionHeader {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .fullWidth {
+        grid-column: auto;
+    }
+
+    .rowMain {
+        grid-template-columns: 1fr;
+    }
+}
