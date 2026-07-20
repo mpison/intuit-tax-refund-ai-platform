@@ -2,7 +2,7 @@
 
 ## Current Version
 
-**v0.5.5**
+**v0.5.6**
 
 ## Overview
 
@@ -103,7 +103,7 @@ This project is intended for system-design interviews, AI architecture discussio
 - Registered-user search
 - Refund search
 - Refund counts by status
-- Policy-management placeholder
+- Full policy management
 - System-operations placeholder
 
 ### AI and RAG
@@ -111,7 +111,7 @@ This project is intended for system-design interviews, AI architecture discussio
 - Spring AI integration
 - Ollama local LLM support
 - PGVector embeddings and retrieval
-- Tax-policy document ingestion
+- Tax-policy document ingestion (PDF, DOCX, TXT)
 - Policy-grounded chatbot responses
 - Refund ETA prediction service
 
@@ -308,6 +308,7 @@ Some service directories may differ slightly depending on the local repository l
 | IRS Simulator Console | 3100 | Local simulator operations |
 | Admin UI | 3200 | Secured operations portal |
 | Admin Service | 8050 | Admin APIs |
+| Policy Management Service | 8040 | Policy administration APIs |
 | Tax Policy Assistant Service | 8060 | RAG and policy chatbot |
 | Refund Prediction Service | 8070 | Refund ETA prediction |
 | Refund Status Service | 8080 | Customer refund APIs |
@@ -331,8 +332,9 @@ Kubernetes services can reuse the same internal service port because each has it
 | irs-simulator | 0.5.4 |
 | admin-ui | 0.5.5 |
 | admin-service | 0.5.5 |
+| policy-management-service | 0.5.6 |
 | refund-prediction-service | 0.4.2 |
-| tax-policy-assistant-service | 0.4.1 |
+| tax-policy-assistant-service | 0.5.6 |
 
 Update this table when a component is rebuilt with a newer version.
 
@@ -637,6 +639,15 @@ GET /api/v1/admin/users
 GET /api/v1/admin/refunds
 ```
 
+### Policy Management APIs
+
+```http
+POST   /api/v1/admin/policies
+GET    /api/v1/admin/policies
+DELETE /api/v1/admin/policies/{policyDocumentId}
+POST   /api/v1/admin/policies/{policyDocumentId}/reindex
+```
+
 Admin APIs require an access token containing the `ADMIN` realm role.
 
 ---
@@ -867,14 +878,23 @@ Verify the relevant port-forward terminal is still running.
 
 ## Roadmap
 
-### v0.5.6 — Policy Management
+### v0.5.6 — Policy Management and RAG Ingestion
 
-- Admin policy upload
+- Standalone Policy Management Service
+- Policy upload (PDF, DOCX, TXT)
 - Policy listing
-- Ingestion status
-- Delete and re-index
+- Delete policy
+- Re-index failed ingestion
+- PostgreSQL policy metadata
+- Local document storage
+- Apache PDFBox PDF extraction
+- Apache POI DOCX extraction
+- Text document extraction
+- Spring AI chunk generation
+- PGVector embedding storage
 - Chunk and embedding statistics
-- RAG administration
+- End-to-end verified RAG ingestion
+- Customer chatbot grounded on uploaded policy documents
 
 ### v0.5.7 — Demo Polish
 
@@ -931,8 +951,9 @@ Verify the relevant port-forward terminal is still running.
 - Local demo only
 - No real IRS integration
 - IRS Simulator Console has no authentication
-- Admin Portal is read-only in v0.5.5
-- Policy administration is deferred to v0.5.6
+- Policy ingestion is synchronous
+- Single active policy version is supported
+- MCP tool orchestration begins in v0.5.7
 - Bootstrap SQL remains the primary schema initializer for v0.5.x
 - Some deployment resources are applied as standalone manifests rather than through one consolidated Kustomization
 

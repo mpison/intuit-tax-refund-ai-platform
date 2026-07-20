@@ -33,3 +33,30 @@ button { cursor: pointer; }
 .placeholder { color: #67708a; text-align: center; }
 @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .sidebar { min-height: auto; } .metrics, .statusGrid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .content { padding: 20px; } .header, .search { align-items: stretch; flex-direction: column; } .search input { min-width: 0; } .metrics, .statusGrid, .row, .refundRow { grid-template-columns: 1fr; } }
+
+
+/* v0.5.6 policy management */
+.policyPage { display: grid; gap: 20px; }
+.policyUploadForm { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; }
+.policyUploadForm input { min-height: 44px; padding: 9px; border: 1px solid #d8deea; border-radius: 10px; background: white; }
+.sectionHeader { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
+.sectionHeader h2, .sectionHeader p { margin: 0; }
+.muted { color: #67708a; }
+.secondaryButton, .dangerButton { padding: 9px 12px; border: 0; border-radius: 9px; font-weight: 800; }
+.secondaryButton { background: #eaf2ff; color: #173f8f; }
+.dangerButton { background: #fff0f0; color: #b42318; }
+.policyTable { display: grid; gap: 12px; }
+.policyRow { display: grid; grid-template-columns: minmax(220px,1.4fr) auto auto minmax(150px,.8fr) auto; align-items: center; gap: 16px; padding: 16px; border: 1px solid #e1e5ee; border-radius: 14px; }
+.policyRow small { display: block; margin-top: 5px; color: #6d7489; }
+.policyStatus { display: inline-flex; justify-content: center; padding: 6px 9px; border-radius: 999px; background: #eaf2ff; color: #173f8f; font-size: 11px; font-weight: 900; }
+.status-READY { background: #e9f8ef; color: #197a50; }
+.status-FAILED { background: #fff0f0; color: #b42318; }
+.status-PROCESSING { background: #fff4d8; color: #8a5b00; }
+.policyStats { display: flex; gap: 12px; }
+.policyStats span { color: #67708a; font-size: 11px; }
+.policyStats strong { display: block; margin-top: 3px; color: #17224d; font-size: 16px; }
+.policyActions { display: flex; gap: 8px; }
+.policyError { grid-column: 1 / -1; margin: 0; color: #b42318; font-size: 13px; }
+.success { border-color: #bce3cd; background: #f1fbf5; color: #197a50; font-weight: 800; }
+@media (max-width: 980px) { .policyRow { grid-template-columns: 1fr 1fr; } .policyActions, .policyError { grid-column: 1 / -1; } }
+@media (max-width: 640px) { .policyUploadForm, .policyRow { grid-template-columns: 1fr; } .sectionHeader { align-items: stretch; flex-direction: column; } .policyActions, .policyError { grid-column: auto; } }

@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: policy-management-schema-v056
+  namespace: refund-platform
+data:
+  V8__policy_management.sql: |
+    CREATE TABLE IF NOT EXISTS policy_documents (
+        policy_document_id UUID PRIMARY KEY,
+        file_name VARCHAR(255) NOT NULL,
+        content_type VARCHAR(150),
+        file_size BIGINT NOT NULL,
+        storage_path VARCHAR(1000) NOT NULL,
+        status VARCHAR(40) NOT NULL,
+        chunk_count INTEGER NOT NULL DEFAULT 0,
+        embedding_count INTEGER NOT NULL DEFAULT 0,
+        uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        last_ingested_at TIMESTAMPTZ,
+        error_message TEXT,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_policy_documents_status_uploaded
+        ON policy_documents(status, uploaded_at DESC);
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: policy-management-schema-v056
+  namespace: refund-platform
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: policy-management-schema-v056
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: postgres-migration
+          image: postgres:17-alpine
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              until pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 3; done
+              PGPASSWORD="$POSTGRES_PASSWORD" psql                 -v ON_ERROR_STOP=1                 -h postgres                 -p 5432                 -U "$POSTGRES_USER"                 -d "$POSTGRES_DB"                 -f /migration/V8__policy_management.sql
+          volumeMounts:
+            - name: migration
+              mountPath: /migration
+              readOnly: true
+      volumes:
+        - name: migration
+          configMap:
+            name: policy-management-schema-v056

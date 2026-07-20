@@ -1,0 +1,9 @@
+# Merge this environment variable into both Deployments:
+#
+# - policy-management-service
+# - tax-policy-assistant-service
+#
+# Do not use this demo value in production.
+
+- name: POLICY_INTERNAL_API_KEY
+  value: refund-demo-policy-key-v056

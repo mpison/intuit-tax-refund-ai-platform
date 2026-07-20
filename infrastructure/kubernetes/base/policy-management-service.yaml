@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: policy-document-storage
+  namespace: refund-platform
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: policy-management-service
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: policy-management-service
+  template:
+    metadata:
+      labels:
+        app: policy-management-service
+    spec:
+      containers:
+        - name: policy-management-service
+          image: policy-management-service:0.5.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8040
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://postgres:5432/refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: JWT_ISSUER_URI
+              value: http://localhost:8081/realms/refund-platform
+            - name: JWT_JWK_SET_URI
+              value: http://keycloak:8080/realms/refund-platform/protocol/openid-connect/certs
+            - name: POLICY_STORAGE_DIRECTORY
+              value: /data/policies
+            - name: POLICY_INGESTION_BASE_URL
+              value: http://tax-policy-assistant-service:8060
+            - name: POLICY_INTERNAL_API_KEY
+              value: refund-demo-policy-key-v056
+          volumeMounts:
+            - name: policy-storage
+              mountPath: /data/policies
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+      volumes:
+        - name: policy-storage
+          persistentVolumeClaim:
+            claimName: policy-document-storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: policy-management-service
+  namespace: refund-platform
+spec:
+  selector:
+    app: policy-management-service
+  ports:
+    - name: http
+      port: 8040
+      targetPort: http

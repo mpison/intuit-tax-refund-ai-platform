@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getDashboard, getRefunds, getUsers } from "./api/adminApi";
+import PolicyManagement from "./components/PolicyManagement";
 
 export default function App({ keycloak }) {
   const [view, setView] = useState("dashboard");
@@ -177,9 +178,7 @@ export default function App({ keycloak }) {
         )}
 
         {view === "policies" && (
-          <section className="card placeholder">
-            Policy management arrives in v0.5.6.
-          </section>
+          <PolicyManagement keycloak={keycloak} />
         )}
 
         {view === "system" && (
