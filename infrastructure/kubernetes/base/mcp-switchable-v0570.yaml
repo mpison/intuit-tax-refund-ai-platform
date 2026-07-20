@@ -1,0 +1,317 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-mcp-java
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-mcp
+      runtime: java
+  template:
+    metadata:
+      labels:
+        app: customer-mcp
+        runtime: java
+    spec:
+      containers:
+        - name: customer-mcp
+          image: customer-mcp-java:0.5.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8030
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://postgres:5432/refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-mcp-python
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-mcp
+      runtime: python
+  template:
+    metadata:
+      labels:
+        app: customer-mcp
+        runtime: python
+    spec:
+      containers:
+        - name: customer-mcp
+          image: customer-mcp-python:0.5.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8030
+          env:
+            - name: DATABASE_HOST
+              value: postgres
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_NAME
+              value: refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-mcp
+  namespace: refund-platform
+spec:
+  selector:
+    app: customer-mcp
+    runtime: java
+  ports:
+    - name: http
+      port: 8030
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: refund-mcp-java
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: refund-mcp
+      runtime: java
+  template:
+    metadata:
+      labels:
+        app: refund-mcp
+        runtime: java
+    spec:
+      containers:
+        - name: refund-mcp
+          image: refund-mcp-java:0.5.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8031
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://postgres:5432/refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: refund-mcp-python
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: refund-mcp
+      runtime: python
+  template:
+    metadata:
+      labels:
+        app: refund-mcp
+        runtime: python
+    spec:
+      containers:
+        - name: refund-mcp
+          image: refund-mcp-python:0.5.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8031
+          env:
+            - name: DATABASE_HOST
+              value: postgres
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_NAME
+              value: refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: refund-mcp
+  namespace: refund-platform
+spec:
+  selector:
+    app: refund-mcp
+    runtime: java
+  ports:
+    - name: http
+      port: 8031
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prediction-mcp-java
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prediction-mcp
+      runtime: java
+  template:
+    metadata:
+      labels:
+        app: prediction-mcp
+        runtime: java
+    spec:
+      containers:
+        - name: prediction-mcp
+          image: prediction-mcp-java:0.5.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8032
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://postgres:5432/refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prediction-mcp-python
+  namespace: refund-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prediction-mcp
+      runtime: python
+  template:
+    metadata:
+      labels:
+        app: prediction-mcp
+        runtime: python
+    spec:
+      containers:
+        - name: prediction-mcp
+          image: prediction-mcp-python:0.5.7.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8032
+          env:
+            - name: DATABASE_HOST
+              value: postgres
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_NAME
+              value: refund_platform
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prediction-mcp
+  namespace: refund-platform
+spec:
+  selector:
+    app: prediction-mcp
+    runtime: java
+  ports:
+    - name: http
+      port: 8032
+      targetPort: http

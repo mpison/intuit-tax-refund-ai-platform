@@ -967,3 +967,32 @@ This repository is a demonstration project.
 - Do not use real taxpayer documents.
 - Do not store production credentials.
 - Do not expose local simulator or admin components publicly.
+
+
+## MCP Platform (v0.5.7.0)
+
+The platform now supports interchangeable Java and Python MCP servers.
+
+Java
+- Spring AI
+- Spring Boot
+- JDBC
+
+Python
+- FastAPI
+- LangChain
+- LangGraph
+- MCP SDK
+
+Runtime switching is supported using:
+
+scripts/switch-mcp-runtime.ps1
+
+.\scripts\switch-mcp-runtime.ps1 `
+-Runtime python
+
+Stable endpoints:
+
+customer-mcp:8030
+refund-mcp:8031
+prediction-mcp:8032

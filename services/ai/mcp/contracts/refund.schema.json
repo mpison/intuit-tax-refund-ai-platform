@@ -1,0 +1,30 @@
+{
+  "title": "LatestRefundResponse",
+  "type": "object",
+  "properties": {
+    "taxReturnId": {
+      "type": "string"
+    },
+    "taxYear": {
+      "type": "integer"
+    },
+    "filedAt": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currentStatus": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "refundAmount": {
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  }
+}

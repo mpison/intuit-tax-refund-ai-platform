@@ -1,0 +1,24 @@
+{
+  "title": "CustomerResponse",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "externalIdentityId": {
+      "type": "string"
+    },
+    "displayName": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "email": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

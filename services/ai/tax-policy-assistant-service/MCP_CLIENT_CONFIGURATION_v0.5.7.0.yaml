@@ -1,0 +1,22 @@
+# Merge in a later v0.5.7 revision when the assistant becomes the MCP client.
+# Stable service names remain unchanged when switching Java/Python runtimes.
+
+spring:
+  ai:
+    mcp:
+      client:
+        type: SYNC
+        request-timeout: 20s
+        toolcallback:
+          enabled: true
+        streamable-http:
+          connections:
+            customer:
+              url: http://customer-mcp:8030
+              endpoint: /mcp
+            refund:
+              url: http://refund-mcp:8031
+              endpoint: /mcp
+            prediction:
+              url: http://prediction-mcp:8032
+              endpoint: /mcp

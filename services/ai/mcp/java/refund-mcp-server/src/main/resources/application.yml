@@ -1,0 +1,35 @@
+server:
+  port: 8031
+
+spring:
+  application:
+    name: refund-mcp-server
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/refund_platform}
+    username: ${DATABASE_USERNAME:refund_user}
+    password: ${DATABASE_PASSWORD:refund_password}
+    driver-class-name: org.postgresql.Driver
+  ai:
+    mcp:
+      server:
+        name: refund-mcp-java
+        version: 0.5.7.0
+        protocol: STATELESS
+        type: SYNC
+        annotation-scanner:
+          enabled: true
+        capabilities:
+          tool: true
+          resource: false
+          prompt: false
+          completion: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

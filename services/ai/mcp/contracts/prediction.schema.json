@@ -1,0 +1,21 @@
+{
+  "title": "RefundPredictionResponse",
+  "type": "object",
+  "properties": {
+    "taxReturnId": {
+      "type": "string"
+    },
+    "estimatedRefundDate": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "method": {
+      "type": "string"
+    }
+  }
+}
