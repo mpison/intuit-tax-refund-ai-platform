@@ -1,5 +1,0 @@
-<!-- Add in the later Tax Policy Assistant MCP-client revision. -->
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-mcp-client</artifactId>
-</dependency>

@@ -31,7 +31,27 @@ spring:
         dimensions: 768
         distance-type: COSINE_DISTANCE
         index-type: HNSW
-
+    mcp:
+      client:
+        enabled: true
+        name: tax-policy-assistant-mcp-client
+        version: 0.5.7.1
+        initialized: true
+        type: SYNC
+        request-timeout: 20s
+        toolcallback:
+          enabled: true
+        streamable-http:
+          connections:
+            customer:
+              url: ${CUSTOMER_MCP_URL:http://customer-mcp:8030}
+              endpoint: /mcp
+            refund:
+              url: ${REFUND_MCP_URL:http://refund-mcp:8031}
+              endpoint: /mcp
+            prediction:
+              url: ${PREDICTION_MCP_URL:http://prediction-mcp:8032}
+              endpoint: /mcp
 management:
   endpoints:
     web:

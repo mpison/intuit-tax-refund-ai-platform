@@ -1,12 +1,13 @@
 package com.refundplatform.mcp.tool;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class RefundTools {
@@ -68,36 +69,57 @@ public class RefundTools {
             description = "Get refund status history for the customer's most recent tax return.",
             generateOutputSchema = true
     )
-    public List<Map<String, Object>> getRefundHistoryByIdentity(
+    public Map<String, Object> getRefundHistoryByIdentity(
             @McpToolParam(
                     description = "Keycloak subject stored in app_users.external_identity_id",
                     required = true
             )
             String externalIdentityId) {
 
-        return jdbcTemplate.queryForList(
-                """
-                SELECT
-                    h.tax_return_id,
-                    h.status,
-                    h.source,
-                    h.changed_at
-                FROM refund_status_history h
-                JOIN tax_returns tr
-                  ON tr.tax_return_id = h.tax_return_id
-                JOIN app_users u
-                  ON u.user_id = tr.user_id
-                WHERE u.external_identity_id = ?
-                  AND h.tax_return_id = (
-                      SELECT tr2.tax_return_id
-                      FROM tax_returns tr2
-                      WHERE tr2.user_id = u.user_id
-                      ORDER BY tr2.filed_at DESC NULLS LAST
-                      LIMIT 1
-                  )
-                ORDER BY h.changed_at ASC
-                """,
+        List<Map<String, Object>> historyList =
+                jdbcTemplate.queryForList(
+                        """
+                        SELECT
+                            h.tax_return_id,
+                            h.status,
+                            h.source,
+                            h.changed_at
+                        FROM refund_status_history h
+                        JOIN tax_returns tr
+                          ON tr.tax_return_id = h.tax_return_id
+                        JOIN app_users u
+                          ON u.user_id = tr.user_id
+                        WHERE u.external_identity_id = ?
+                          AND h.tax_return_id = (
+                              SELECT tr2.tax_return_id
+                              FROM tax_returns tr2
+                              WHERE tr2.user_id = u.user_id
+                              ORDER BY tr2.filed_at DESC NULLS LAST
+                              LIMIT 1
+                          )
+                        ORDER BY h.changed_at ASC
+                        """,
+                        externalIdentityId
+                );
+
+        Map<String, Object> responseMap =
+                new LinkedHashMap<>();
+
+        responseMap.put(
+                "externalIdentityId",
                 externalIdentityId
         );
+
+        responseMap.put(
+                "historyCount",
+                historyList.size()
+        );
+
+        responseMap.put(
+                "history",
+                historyList
+        );
+
+        return responseMap;
     }
 }
