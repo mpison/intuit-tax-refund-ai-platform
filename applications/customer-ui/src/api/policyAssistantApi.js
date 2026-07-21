@@ -4,8 +4,15 @@ const assistantApiUrl =
 
 export async function askPolicyAssistant(
     conversationId,
-    question
+    question,
+    accessToken
 ) {
+
+    if (!accessToken) {
+        throw new Error(
+            "No access token is available. Please sign in again."
+        );
+    }
 
     const response =
         await fetch(
@@ -17,7 +24,10 @@ export async function askPolicyAssistant(
                 headers:
                     {
                         "Content-Type":
-                            "application/json"
+                            "application/json",
+
+                        Authorization:
+                            `Bearer ${accessToken}`
                     },
 
                 body:
@@ -32,8 +42,30 @@ export async function askPolicyAssistant(
 
     if (!response.ok) {
 
+        let errorMessage =
+            `Policy Assistant failed with status ${response.status}`;
+
+        try {
+            const errorBody =
+                await response.json();
+
+            errorMessage =
+                errorBody.message
+                || errorBody.error
+                || errorMessage;
+        }
+        catch {
+            // Keep the default message when the response is not JSON.
+        }
+
+        if (response.status === 401) {
+            throw new Error(
+                "Your session has expired. Please sign in again."
+            );
+        }
+
         throw new Error(
-            `Policy Assistant failed with status ${response.status}`
+            errorMessage
         );
     }
 

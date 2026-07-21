@@ -1,0 +1,46 @@
+﻿server:
+  port: 8060
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/refund_platform
+    username: refund_user
+    password: refund_password
+
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+
+    mcp:
+      client:
+        enabled: false
+        #initialized: true
+        #type: SYNC
+        #toolcallback:
+          #enabled: true
+
+        #streamable-http:
+          #connections:
+            #customer:
+            #  url: http://localhost:8030
+            #  endpoint: /mcp
+
+            #refund:
+            #  url: http://localhost:8031
+            #  endpoint: /mcp
+
+            #prediction:
+            #  url: http://localhost:8032
+             # endpoint: /mcp
+
+    vectorstore:
+      pgvector:
+        initialize-schema: false
+
+mcp.enabled: false
+
+logging:
+  level:
+    com.refundplatform: DEBUG
+    org.springframework.ai.mcp: DEBUG
+    org.springframework.ai.tool: DEBUG

@@ -1,0 +1,27 @@
+server:
+  port: 8070
+
+spring:
+  application:
+    name: refund-prediction-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/refund_platform
+    username: refund_user
+    password: refund_password
+    driver-class-name: org.postgresql.Driver
+
+
+logging:
+  level:
+    com.refundplatform: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always

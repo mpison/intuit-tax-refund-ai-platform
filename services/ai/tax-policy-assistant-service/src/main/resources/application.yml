@@ -13,16 +13,16 @@ spring:
   ai:
     ollama:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
-
       chat:
         options:
           model: ${OLLAMA_CHAT_MODEL:llama3.2}
           temperature: 0.2
-
       embedding:
         options:
           model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-
+    client:
+      tool-calling:
+        enabled: true
     vectorstore:
       pgvector:
         initialize-schema: true
@@ -33,25 +33,28 @@ spring:
         index-type: HNSW
     mcp:
       client:
-        enabled: true
+        enabled: false
         name: tax-policy-assistant-mcp-client
-        version: 0.5.7.1
+        version: 0.5.7.4
         initialized: true
         type: SYNC
         request-timeout: 20s
         toolcallback:
-          enabled: true
-        streamable-http:
-          connections:
-            customer:
-              url: ${CUSTOMER_MCP_URL:http://customer-mcp:8030}
-              endpoint: /mcp
-            refund:
-              url: ${REFUND_MCP_URL:http://refund-mcp:8031}
-              endpoint: /mcp
-            prediction:
-              url: ${PREDICTION_MCP_URL:http://prediction-mcp:8032}
-              endpoint: /mcp
+          enabled: false
+        #streamable-http:
+        #  connections:
+        #    customer:
+        #      url: ${CUSTOMER_MCP_URL:http://customer-mcp:8030}
+        #      endpoint: /mcp
+        #    refund:
+        #      url: ${REFUND_MCP_URL:http://refund-mcp:8031}
+        #      endpoint: /mcp
+        #    prediction:
+        #      url: ${PREDICTION_MCP_URL:http://prediction-mcp:8032}
+        #      endpoint: /mcp
+
+mcp.enabled: false			
+
 management:
   endpoints:
     web:
@@ -64,3 +67,8 @@ management:
     health:
       probes:
         enabled: true
+
+logging:
+  level:
+    org.springframework.ai.tool: DEBUG
+    org.springframework.ai.chat.client.advisor: DEBUG

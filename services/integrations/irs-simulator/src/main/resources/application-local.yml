@@ -1,0 +1,26 @@
+﻿spring:
+  application:
+    name: irs-simulator
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/refund_platform
+    username: refund_user
+    password: refund_password
+    driver-class-name: org.postgresql.Driver
+
+server:
+  port: 8090
+
+logging:
+  level:
+    com.refundplatform: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always

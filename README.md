@@ -2,7 +2,7 @@
 
 ## Current Version
 
-**v0.5.6**
+**v0.5.7.4**
 
 ## Overview
 
@@ -10,21 +10,42 @@ A cloud-native tax refund platform inspired by TurboTax-style customer experienc
 
 The platform demonstrates:
 
-- secure customer and admin authentication
+- secure customer and admin authentication with Keycloak and JWT
 - tax return and refund tracking
 - refund status synchronization with an IRS simulator
 - refund ETA prediction
 - refund history and lifecycle timelines
-- PostgreSQL-backed simulator data
-- a Spring AI policy assistant using RAG and PGVector
-- separate customer, simulator, and operations interfaces
-- Docker and Kubernetes deployment
+- PostgreSQL-backed transactional and simulator data
+- a Spring AI assistant using Ollama, MCP tools, RAG, and PGVector
+- interchangeable Java and Python MCP server runtimes
+- separate customer, simulator, administration, and operations interfaces
+- Docker, Kubernetes, Kind, and Kustomize deployment
+- an architecture designed for observability, event-driven integration, and future cloud scaling
 
 This project is intended for system-design interviews, AI architecture discussions, integration testing, and local demonstrations. It is not connected to the real IRS and must not be used with real taxpayer data.
 
 ---
 
 ## Version Highlights
+
+### v0.5.7.4 — Unified AI Tool and MCP Foundation
+
+- Customer UI sends the Keycloak bearer token to the assistant API
+- Per-user chat history and conversation IDs in the browser
+- Java and Python MCP server implementations
+- Stable MCP service endpoints with runtime switching
+- Customer, refund, refund-history, and prediction tools
+- Refund and prediction SQL aligned to the current PostgreSQL schema
+- Spring AI MCP client integration and tool discovery
+- PGVector policy search exposed as an AI tool
+- Version-independent Docker JAR packaging
+
+### v0.5.7.0–v0.5.7.3 — MCP and Orchestration Foundation
+
+- MCP server project organization for Java and Python
+- Spring AI MCP client connectivity
+- Internal tool registry abstraction
+- Intent classification and orchestration planning foundation
 
 ### v0.5.5 — Admin Portal
 
@@ -119,55 +140,123 @@ This project is intended for system-design interviews, AI architecture discussio
 
 ## High-Level Architecture
 
-```text
-                                +----------------------+
-                                |      Keycloak        |
-                                | Identity and RBAC    |
-                                +----------+-----------+
-                                           |
-                   +-----------------------+-----------------------+
-                   |                       |                       |
-                   v                       v                       v
-          +----------------+      +----------------+      +----------------+
-          |  customer-ui   |      |    admin-ui    |      | irs-admin-ui   |
-          | Port 3000      |      | Port 3200      |      | Port 3100      |
-          +-------+--------+      +-------+--------+      +-------+--------+
-                  |                       |                       |
-                  v                       v                       v
-     +--------------------------+  +--------------+      +-----------------+
-     | refund-status-service    |  | admin-service|      | irs-simulator   |
-     | Port 8080                |  | Port 8050    |      | Port 8090       |
-     +----+----------+----------+  +------+-------+      +--------+--------+
-          |          |                    |                       |
-          |          |                    +-----------+-----------+
-          |          |                                |
-          |          v                                v
-          |   +----------------------+        +----------------------+
-          |   | refund-prediction    |        | PostgreSQL           |
-          |   | Port 8070            |        | Port 5432            |
-          |   +----------------------+        |                      |
-          |                                    | app_users            |
-          |                                    | tax_returns          |
-          |                                    | refund_statuses      |
-          |                                    | refund_status_history|
-          |                                    | irs_refund_records   |
-          |                                    | PGVector data        |
-          |                                    +----------------------+
-          |
-          v
-+------------------------------+
-| tax-policy-assistant-service |
-| Port 8060                    |
-+---------------+--------------+
-                |
-                +--------------------+
-                |                    |
-                v                    v
-          +-----------+        +-----------+
-          | PGVector  |        |  Ollama   |
-          | PostgreSQL|        | Port 11434|
-          +-----------+        +-----------+
+![Intuit Tax Refund AI Platform — Final High-Level Architecture](docs/01-architecture/INTUIT_TAX_REFUND_AI_PLATFORM_HIGH_LEVEL_v0.5.7.4.png)
+
+The final design separates user-facing applications, identity, AI orchestration, MCP tools, business services, data stores, infrastructure, and observability. The current Kind deployment implements the core path, while the diagram also shows the intended production-ready direction.
+
+```mermaid
+flowchart LR
+    subgraph Clients[Clients and Users]
+        Customer[Taxpayer]
+        Admin[Admin / IRS Agent]
+        Ops[Support / Operations]
+    end
+
+    subgraph Entry[Entry Point]
+        CustomerUI[Customer UI]
+        AdminUI[Admin UI / IRS Admin UI]
+        Gateway[API Gateway / Backend for Frontends]
+    end
+
+    subgraph Security[Security and Identity]
+        Keycloak[Keycloak]
+        JWT[JWT / Roles / Scopes]
+    end
+
+    subgraph AI[AI and Service Layer]
+        Assistant[Tax Policy Assistant
+Spring AI + Ollama]
+        MCPClient[MCP Client
+Managed Connections]
+        CustomerMCP[Customer MCP]
+        RefundMCP[Refund MCP]
+        PredictionMCP[Prediction MCP]
+        RefundStatus[Refund Status Service]
+        Prediction[Refund Prediction Service]
+        PolicyMgmt[Policy Management Service]
+        IRSSim[IRS Simulator]
+        EventBus[Event Bus / Messaging
+Future Kafka]
+    end
+
+    subgraph Data[Data Layer]
+        Postgres[(PostgreSQL
+OLTP)]
+        PGVector[(PGVector
+Policy Embeddings)]
+        ObjectStore[(Object Storage
+Policy Documents)]
+    end
+
+    subgraph Observability[Observability]
+        Metrics[Prometheus]
+        Dashboards[Grafana]
+        Logs[Loki / Structured Logs]
+        Traces[Tempo / Jaeger]
+        Alerts[Alertmanager]
+    end
+
+    Customer --> CustomerUI
+    Admin --> AdminUI
+    Ops --> Gateway
+    CustomerUI --> Gateway
+    AdminUI --> Gateway
+    Gateway --> Assistant
+    Gateway --> RefundStatus
+
+    CustomerUI --> Keycloak
+    AdminUI --> Keycloak
+    Keycloak --> JWT
+    JWT --> Gateway
+    JWT --> Assistant
+
+    Assistant --> MCPClient
+    MCPClient --> CustomerMCP
+    MCPClient --> RefundMCP
+    MCPClient --> PredictionMCP
+    Assistant --> PGVector
+
+    CustomerMCP --> Postgres
+    RefundMCP --> Postgres
+    PredictionMCP --> Postgres
+    RefundStatus --> Postgres
+    Prediction --> Postgres
+    PolicyMgmt --> Postgres
+    PolicyMgmt --> PGVector
+    PolicyMgmt --> ObjectStore
+    IRSSim --> Postgres
+
+    RefundStatus <--> IRSSim
+    RefundStatus --> EventBus
+    Prediction --> EventBus
+    PolicyMgmt --> EventBus
+
+    AI -. metrics logs traces .-> Observability
+    Data -. metrics logs .-> Observability
 ```
+
+### Layer Responsibilities
+
+| Layer | Responsibilities |
+|---|---|
+| Clients and entry point | Customer, admin, IRS simulator, support, and optional mobile experiences; routing through an API gateway or backend-for-frontend layer |
+| Security and identity | Keycloak authentication, JWT issuance, roles, scopes, and service authorization |
+| Tax Policy Assistant | Intent understanding, tool orchestration, RAG policy search, response generation, and future conversation memory |
+| MCP layer | Standardized access to customer, refund, history, and prediction capabilities; Java/Python runtime interchangeability |
+| Business services | Refund tracking, prediction, policy management, administration, and IRS simulation |
+| Data | PostgreSQL OLTP tables, PGVector embeddings, and future object storage for source documents |
+| Platform | Kubernetes, ConfigMaps and Secrets, ingress, autoscaling, CI/CD, and container registry |
+| Observability | Metrics, logs, traces, dashboards, alerting, SLOs, and operational runbooks |
+
+### Key Architectural Principles
+
+- **Security first:** browser requests carry Keycloak JWTs; internal tools must derive trusted identity from authenticated context rather than user-entered identifiers.
+- **Tool-based AI integration:** the assistant uses MCP tools for account data and PGVector-backed policy search for policy knowledge.
+- **Separation of concerns:** user interfaces, orchestration, MCP adapters, business services, and persistence are independently deployable.
+- **Runtime flexibility:** stable Kubernetes services can route to either Java or Python MCP implementations.
+- **Loose coupling:** synchronous APIs support direct user requests; a future Kafka event bus handles durable asynchronous workflows.
+- **Data separation:** transactional data remains in PostgreSQL, semantic retrieval uses PGVector, and source files can move to object storage.
+- **Operational readiness:** every service should expose health, metrics, structured logs, traces, and safe diagnostic information.
 
 ---
 
@@ -209,16 +298,23 @@ Admin user
   -> PostgreSQL read models
 ```
 
-### Policy Assistant
+### AI Refund Assistant
 
 ```text
 Customer
-  -> floating chatbot
+  -> customer-ui
+  -> Keycloak login and JWT
   -> tax-policy-assistant-service
-  -> PGVector retrieval
-  -> Ollama
-  -> grounded answer
+  -> Spring AI tool-calling loop
+       -> Customer MCP for customer context
+       -> Refund MCP for latest status and history
+       -> Prediction MCP for an expected refund date
+       -> search_tax_policy for PGVector policy retrieval
+  -> Ollama generates one grounded response
+  -> customer-ui displays the answer and sources
 ```
+
+The trusted customer identity should be derived from the authenticated security context. It should not be requested from the user, logged in plaintext, or unnecessarily included in model prompts.
 
 ---
 
@@ -240,6 +336,15 @@ services/
   ai/
     refund-prediction-service/
     tax-policy-assistant-service/
+    mcp/
+      java/
+        customer-mcp-server/
+        refund-mcp-server/
+        prediction-mcp-server/
+      python/
+        customer-mcp-server/
+        refund-mcp-server/
+        prediction-mcp-server/
 
 infrastructure/
   keycloak/
@@ -308,6 +413,9 @@ Some service directories may differ slightly depending on the local repository l
 | IRS Simulator Console | 3100 | Local simulator operations |
 | Admin UI | 3200 | Secured operations portal |
 | Admin Service | 8050 | Admin APIs |
+| Customer MCP | 8030 | Customer account tools |
+| Refund MCP | 8031 | Latest refund and history tools |
+| Prediction MCP | 8032 | Deterministic refund-date prediction tool |
 | Policy Management Service | 8040 | Policy administration APIs |
 | Tax Policy Assistant Service | 8060 | RAG and policy chatbot |
 | Refund Prediction Service | 8070 | Refund ETA prediction |
@@ -326,17 +434,23 @@ Kubernetes services can reuse the same internal service port because each has it
 
 | Image | Version |
 |---|---|
-| customer-ui | 0.5.3 |
+| customer-ui | 0.5.7.4 |
+| tax-policy-assistant-service | 0.5.7.4 |
+| refund-mcp-server (Java) | 0.5.7.4 |
+| prediction-mcp-server (Java) | 0.5.7.4 |
+| customer-mcp-java | 0.5.7.0 |
+| customer-mcp-python | 0.5.7.0 |
+| refund-mcp-python | 0.5.7.0 |
+| prediction-mcp-python | 0.5.7.0 |
 | refund-status-service | 0.5.3 |
 | irs-admin-ui | 0.5.4 |
 | irs-simulator | 0.5.4 |
-| admin-ui | 0.5.5 |
+| admin-ui | 0.5.6 |
 | admin-service | 0.5.5 |
 | policy-management-service | 0.5.6 |
 | refund-prediction-service | 0.4.2 |
-| tax-policy-assistant-service | 0.5.6 |
 
-Update this table when a component is rebuilt with a newer version.
+Update this table whenever a component is rebuilt with a newer image tag.
 
 ---
 
@@ -589,6 +703,14 @@ kubectl port-forward -n refund-platform svc/irs-simulator 8090:8090
 kubectl port-forward -n refund-platform svc/postgres 5432:5432
 ```
 
+MCP servers, when testing directly:
+
+```powershell
+kubectl port-forward -n refund-platform svc/customer-mcp 8030:8030
+kubectl port-forward -n refund-platform svc/refund-mcp 8031:8031
+kubectl port-forward -n refund-platform svc/prediction-mcp 8032:8032
+```
+
 ---
 
 ## Local URLs
@@ -598,6 +720,9 @@ kubectl port-forward -n refund-platform svc/postgres 5432:5432
 | Customer Portal | `http://localhost:3000` |
 | IRS Simulator Console | `http://localhost:3100` |
 | Admin Portal | `http://localhost:3200` |
+| Customer MCP Health | `http://localhost:8030/actuator/health` |
+| Refund MCP Health | `http://localhost:8031/actuator/health` |
+| Prediction MCP Health | `http://localhost:8032/actuator/health` |
 | Admin Service Health | `http://localhost:8050/actuator/health` |
 | Tax Policy Assistant API | `http://localhost:8060` |
 | Refund Prediction API | `http://localhost:8070` |
@@ -727,6 +852,10 @@ IRS-DEMO-2025-0001
 ## Security Notes
 
 - The Customer Portal and Admin Portal use Keycloak.
+- The Customer UI sends a bearer token to the Tax Policy Assistant API.
+- Per-user browser chat history is keyed by the authenticated Keycloak subject.
+- Stable customer identifiers must not be logged in plaintext or exposed unnecessarily to the LLM.
+- Production account tools should inject identity from the trusted security context rather than accepting arbitrary model-supplied identity values.
 - Admin APIs require the `ADMIN` realm role.
 - The IRS Simulator Console intentionally has no login because it is a local-only demo mechanism.
 - Do not expose `irs-admin-ui` through public ingress.
@@ -759,7 +888,7 @@ kubectl logs deployment/refund-status-service `
   --tail=200
 ```
 
-Planned production observability includes:
+The target production observability design includes:
 
 - Prometheus metrics
 - Grafana dashboards
@@ -845,6 +974,7 @@ Verify the relevant port-forward terminal is still running.
 
 ### Architecture
 
+- [Final High-Level Platform Architecture](docs/01-architecture/INTUIT_TAX_REFUND_AI_PLATFORM_HIGH_LEVEL_v0.5.7.4.png)
 - [IRS Simulator Architecture](docs/01-architecture/IRS_SIMULATOR_ARCHITECTURE_v0.5.4.md)
 
 ### Kubernetes
@@ -896,41 +1026,44 @@ Verify the relevant port-forward terminal is still running.
 - End-to-end verified RAG ingestion
 - Customer chatbot grounded on uploaded policy documents
 
-### v0.5.7 — Demo Polish
+### v0.5.7.0–v0.5.7.4 — MCP and Unified AI Tool Foundation — Complete
 
-- UI consistency
-- loading skeletons
-- accessibility
-- confirmation dialogs
-- demo reset scripts
-- final walkthrough
+- Java and Python MCP servers
+- Stable runtime-switchable MCP services
+- Customer, refund, history, and prediction tools
+- Spring AI MCP client integration
+- PGVector policy search tool
+- Customer UI bearer-token propagation
+- Per-user browser chat history and conversation IDs
+- Schema-aligned refund and prediction queries
 
-### v0.6.0 — Account-Aware AI Refund Assistant
+### v0.5.8 — Secure Account-Aware AI Orchestration
 
-- customer-data tools
-- refund-history tools
-- prediction tool
-- policy RAG
-- conversation memory
-- grounded account-aware responses
+- inject authenticated identity into account tools outside the model prompt
+- authorize tools by role, scope, and customer ownership
+- compose Customer MCP → Refund MCP → Prediction MCP → Policy Search
+- preserve prompt privacy and minimize PII exposure
+- tool-call audit records without sensitive payload logging
+- resilient error handling, timeout, retry, and circuit-breaker behavior
 
-### v0.6.1 — MCP Tools
+### v0.5.9 — AI Evaluation, Memory, and Guardrails
 
-- Customer MCP server
-- Refund MCP server
-- Policy MCP server
-- Prediction MCP server
-- IRS Simulator MCP server
-- tool authorization and audit
-
-### v0.6.2 — AI Evaluation and Guardrails
-
-- golden datasets
-- RAG evaluation
-- hallucination checks
-- citation validation
-- PII masking
+- Redis-backed conversation memory
+- golden evaluation datasets
+- RAG relevance and citation evaluation
+- hallucination and groundedness checks
 - tool-call authorization tests
+- prompt-injection and data-exfiltration defenses
+- PII masking and retention controls
+
+### v0.6.x — Event-Driven Platform Evolution
+
+- Kafka event backbone
+- asynchronous refund-status updates
+- prediction refresh events
+- policy-ingestion events
+- notification workflows
+- outbox pattern and idempotent consumers
 
 ### v0.7.x — Production Hardening
 
@@ -953,9 +1086,11 @@ Verify the relevant port-forward terminal is still running.
 - IRS Simulator Console has no authentication
 - Policy ingestion is synchronous
 - Single active policy version is supported
-- MCP tool orchestration begins in v0.5.7
+- MCP server connectivity and tool registration are available in v0.5.7.4; secure identity injection into account tools remains a planned improvement
 - Bootstrap SQL remains the primary schema initializer for v0.5.x
 - Some deployment resources are applied as standalone manifests rather than through one consolidated Kustomization
+- Java and Python MCP runtimes coexist; the stable Kubernetes service selector determines the active implementation
+- The current demo may disable MCP in the assistant profile while testing policy-only RAG
 
 ---
 
@@ -969,30 +1104,63 @@ This repository is a demonstration project.
 - Do not expose local simulator or admin components publicly.
 
 
-## MCP Platform (v0.5.7.0)
+## MCP Platform (v0.5.7.x)
 
-The platform now supports interchangeable Java and Python MCP servers.
+The platform supports interchangeable Java and Python MCP servers behind stable Kubernetes service names.
 
-Java
-- Spring AI
+### Java Runtime
+
 - Spring Boot
-- JDBC
+- Spring AI MCP annotations
+- Spring JDBC
+- PostgreSQL
 
-Python
+### Python Runtime
+
 - FastAPI
 - LangChain
 - LangGraph
-- MCP SDK
+- Python MCP SDK
 
-Runtime switching is supported using:
+### Stable Endpoints
 
-scripts/switch-mcp-runtime.ps1
-
-.\scripts\switch-mcp-runtime.ps1 `
--Runtime python
-
-Stable endpoints:
-
+```text
 customer-mcp:8030
 refund-mcp:8031
 prediction-mcp:8032
+```
+
+### Runtime Switching
+
+```powershell
+.\scripts\switch-mcp-runtime.ps1 `
+  -Runtime python
+```
+
+or:
+
+```powershell
+.\scripts\switch-mcp-runtime.ps1 `
+  -Runtime java
+```
+
+After switching a runtime, restart or reconnect MCP clients so they establish fresh sessions with the selected implementation.
+
+### Current MCP Tools
+
+```text
+get_customer_by_identity
+get_latest_refund_by_identity
+get_refund_history_by_identity
+predict_refund_date
+```
+
+The Tax Policy Assistant can also register the local PGVector-backed tool:
+
+```text
+search_tax_policy
+```
+
+### Security Direction
+
+The ideal production design does not place the full Keycloak subject, email address, or other private customer data into the model prompt. Account tools should receive trusted identity from Spring Security or a server-side execution context, and the model should decide only which capability is required.

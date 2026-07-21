@@ -1,0 +1,15 @@
+﻿spring.application.name=admin-service
+
+server.port=8050
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/refund_platform
+spring.datasource.username=refund_user
+spring.datasource.password=refund_password
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8081/realms/refund-platform
+
+logging.level.com.refundplatform=DEBUG
+
+management.endpoints.web.exposure.include=*
+management.endpoint.health.show-details=always

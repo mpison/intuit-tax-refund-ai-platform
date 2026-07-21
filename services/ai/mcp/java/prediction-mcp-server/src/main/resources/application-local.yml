@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: prediction-mcp-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/refund_platform
+    username: refund_user
+    password: refund_password
+    driver-class-name: org.postgresql.Driver
+
+  ai:
+    mcp:
+      server:
+        enabled: true
+        type: SYNC
+        name: prediction-mcp-server
+
+server:
+  port: 8032
+
+logging:
+  level:
+    com.refundplatform: DEBUG
+    org.springframework.ai.mcp: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
