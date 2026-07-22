@@ -7,6 +7,7 @@ import App from "./App";
 import { keycloak } from "./auth/keycloak";
 
 import "./styles.css";
+import "./RefundFaq.css";
 
 keycloak
     .init(

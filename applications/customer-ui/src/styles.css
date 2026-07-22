@@ -1087,6 +1087,17 @@ body {
     grid-template-columns: 1fr;
 }
 
+.refundPageLayout {
+    display: grid;
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.refundDashboardContent {
+    min-width: 0;
+}
+
 @media (max-width: 760px) {
     .timelineHeader {
         align-items: flex-start;
@@ -1104,5 +1115,9 @@ body {
 
     .predictionMetrics div {
         flex: 1 1 140px;
+    }
+
+    .refundPageLayout {
+        grid-template-columns: 1fr;
     }
 }

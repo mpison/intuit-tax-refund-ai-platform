@@ -1,0 +1,158 @@
+.refundFaqPanel {
+    width: 100%;
+    max-width: 340px;
+    padding: 22px 18px;
+    border: 1px solid #c9d3df;
+    border-radius: 14px;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.refundFaqTitle {
+    margin: 0 0 14px;
+    font-size: 21px;
+    font-weight: 500;
+    color: #182230;
+}
+
+.refundFaqList {
+    display: flex;
+    flex-direction: column;
+}
+
+.refundFaqItem {
+    border-bottom: 1px solid #d8dee7;
+}
+
+.refundFaqQuestion {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 0 14px;
+    border: 0;
+    background: transparent;
+    color: #172033;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+}
+
+.refundFaqQuestion:hover {
+    color: #2367ad;
+}
+
+.refundFaqQuestion:focus-visible {
+    outline: 3px solid rgba(35, 103, 173, 0.25);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.refundFaqChevron {
+    display: inline-flex;
+    font-size: 22px;
+    line-height: 1;
+    transform: rotate(0deg);
+    transition: transform 180ms ease;
+}
+
+.refundFaqChevron.expanded {
+    transform: rotate(180deg);
+}
+
+.refundFaqContent {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+        grid-template-rows 220ms ease,
+        opacity 180ms ease;
+}
+
+.refundFaqContent.expanded {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.refundFaqContentInner {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.refundFaqContentInner p {
+    margin: 0 0 12px;
+    color: #4c5667;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.faqPrimaryButton {
+    width: 100%;
+    margin: 4px 0 14px;
+    padding: 11px 14px;
+    border: 0;
+    border-radius: 3px;
+    background: #2367ad;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.faqPrimaryButton:hover {
+    background: #174f88;
+}
+
+.faqPrimaryButton:focus-visible {
+    outline: 3px solid rgba(35, 103, 173, 0.3);
+    outline-offset: 3px;
+}
+
+.taxInfoSection {
+    margin-top: 24px;
+}
+
+.taxInfoSection h2 {
+    margin: 0 0 24px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #172033;
+}
+
+.taxInfoRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #d8dee7;
+    color: #172033;
+    font-size: 13px;
+}
+
+.taxInfoRow strong {
+    white-space: nowrap;
+}
+
+.taxInfoSection a {
+    display: block;
+    padding: 18px 0;
+    border-bottom: 1px solid #d8dee7;
+    color: #2367ad;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.taxInfoSection a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+    .refundFaqPanel {
+        max-width: none;
+    }
+}

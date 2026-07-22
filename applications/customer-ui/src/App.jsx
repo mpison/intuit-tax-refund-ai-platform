@@ -9,6 +9,10 @@ import {
     refreshRefund
 } from "./api/refundApi";
 
+import {
+    getRefundHistory
+} from "./api/refundHistoryApi";
+
 import PredictionCard from "./components/PredictionCard";
 import PolicyAssistant from "./components/PolicyAssistant";
 import CreateFiledReturn from "./components/CreateFiledReturn";
@@ -16,38 +20,36 @@ import UserProfile from "./components/UserProfile";
 import RefundTimeline from "./components/RefundTimeline";
 import RefundHistory from "./components/RefundHistory";
 import EmptyRefundState from "./components/EmptyRefundState";
-import { getRefundHistory } from "./api/refundHistoryApi";
+import RefundFaq from "./components/RefundFaq";
 
-const refundStages =
-    [
-        "FILED",
-        "ACCEPTED",
-        "PROCESSING",
-        "APPROVED",
-        "REFUND_SENT",
-        "REFUND_RECEIVED"
-    ];
+const refundStages = [
+    "FILED",
+    "ACCEPTED",
+    "PROCESSING",
+    "APPROVED",
+    "REFUND_SENT",
+    "REFUND_RECEIVED"
+];
 
-const refundStageLabels =
-    {
-        FILED:
-            "Filed",
+const refundStageLabels = {
+    FILED:
+        "Filed",
 
-        ACCEPTED:
-            "Accepted",
+    ACCEPTED:
+        "Accepted",
 
-        PROCESSING:
-            "Processing",
+    PROCESSING:
+        "Processing",
 
-        APPROVED:
-            "Approved",
+    APPROVED:
+        "Approved",
 
-        REFUND_SENT:
-            "Refund sent",
+    REFUND_SENT:
+        "Refund sent",
 
-        REFUND_RECEIVED:
-            "Refund received"
-    };
+    REFUND_RECEIVED:
+        "Refund received"
+};
 
 export default function App(
     {
@@ -178,8 +180,14 @@ export default function App(
 
             if (
                 error?.status === 404
-                || errorText.includes("404")
-                || errorText.toLowerCase().includes("not found")
+                || errorText.includes(
+                    "404"
+                )
+                || errorText
+                    .toLowerCase()
+                    .includes(
+                        "not found"
+                    )
             ) {
 
                 setRefund(
@@ -253,7 +261,8 @@ export default function App(
             );
 
             setHistoryError(
-                error.message
+                error?.message
+                || "Unable to load refund history."
             );
         }
         finally {
@@ -265,6 +274,10 @@ export default function App(
     }
 
     async function refreshFromIrs() {
+
+        if (!refund?.taxReturnId) {
+            return;
+        }
 
         try {
 
@@ -290,7 +303,8 @@ export default function App(
         catch (error) {
 
             setErrorMessage(
-                error.message
+                error?.message
+                || "Unable to refresh refund information."
             );
         }
         finally {
@@ -334,7 +348,10 @@ export default function App(
 
                 </div>
 
-                <nav className="navActions">
+                <nav
+                    className="navActions"
+                    aria-label="Main navigation"
+                >
 
                     <button
                         className={
@@ -348,7 +365,8 @@ export default function App(
                                     "refund"
                                 )
                         }
-                        type="button">
+                        type="button"
+                    >
 
                         Refund
 
@@ -366,7 +384,8 @@ export default function App(
                                     "profile"
                                 )
                         }
-                        type="button">
+                        type="button"
+                    >
 
                         Profile
 
@@ -378,7 +397,8 @@ export default function App(
                             () =>
                                 keycloak.logout()
                         }
-                        type="button">
+                        type="button"
+                    >
 
                         Sign out
 
@@ -392,228 +412,331 @@ export default function App(
 
                 {
                     activeView === "refund"
-                    && errorMessage
                     && (
 
-                        <section className="card errorCard">
+                        <div className="refundLayout">
 
-                            <h2>
-                                Unable to complete request
-                            </h2>
 
-                            <p>
-                                {errorMessage}
-                            </p>
 
-                        </section>
-                    )
-                }
+                            <section className="mainContent">
 
-                {
-                    activeView === "refund"
-                    && isLoading
-                    && (
+                                {
+                                    errorMessage
+                                    && (
 
-                        <section className="card">
+                                        <section
+                                            className="card errorCard"
+                                            role="alert"
+                                        >
 
-                            Loading refund...
+                                            <h2>
+                                                Unable to complete request
+                                            </h2>
 
-                        </section>
-                    )
-                }
+                                            <p>
+                                                {errorMessage}
+                                            </p>
 
-                {
-                    activeView === "refund"
-                    && hasNoRefund
-                    && !isLoading
-                    && !isCreatingReturn
-                    && (
-
-                        <EmptyRefundState
-                            onCreate={
-                                () =>
-                                    setIsCreatingReturn(
-                                        true
+                                        </section>
                                     )
-                            }
-                        />
-                    )
-                }
+                                }
 
-                {
-                    activeView === "refund"
-                    && hasNoRefund
-                    && isCreatingReturn
-                    && (
+                                {
+                                    isLoading
+                                    && (
 
-                        <CreateFiledReturn
-                            keycloak={keycloak}
-                            onCancel={
-                                () =>
-                                    setIsCreatingReturn(
-                                        false
+                                        <section
+                                            className="card"
+                                            aria-live="polite"
+                                        >
+
+                                            Loading refund...
+
+                                        </section>
                                     )
-                            }
-                            onCreated={loadRefund}
-                        />
-                    )
-                }
-
-                {
-                    activeView === "refund"
-                    && refund
-                    && !isLoading
-                    && (
-
-                        <>
-
-                            <section className="hero">
-
-                                <div>
-
-                                    <p className="eyebrow">
-                                        Your {refund.taxYear} federal refund
-                                    </p>
-
-                                    <h1>
-                                        {
-                                            new Intl.NumberFormat(
-                                                "en-US",
-                                                {
-                                                    style:
-                                                        "currency",
-
-                                                    currency:
-                                                        "USD"
-                                                }
-                                            )
-                                            .format(
-                                                refund.refundAmount
-                                            )
-                                        }
-                                    </h1>
-
-                                    <p>
-
-                                        Current status:
-                                        {" "}
-
-                                        <strong>
-                                            {
-                                                refundStageLabels[
-                                                    refund.status
-                                                ]
-                                                || refund.status
-                                            }
-                                        </strong>
-
-                                    </p>
-
-                                </div>
-
-                                <button
-                                    disabled={isRefreshing}
-                                    onClick={refreshFromIrs}>
-
-                                    {
-                                        isRefreshing
-                                            ? "Refreshing..."
-                                            : "Refresh from IRS"
-                                    }
-
-                                </button>
-
-                            </section>
-
-                            <PredictionCard
-                                prediction={prediction}
-                            />
-
-                            <RefundTimeline
-                                currentStatus={
-                                    refund.status
                                 }
-                            />
 
-                            <RefundHistory
-                                events={
-                                    refundHistory
-                                }
-                                errorMessage={
-                                    historyError
-                                }
-                                isLoading={
-                                    isHistoryLoading
-                                }
-                                onRefresh={
-                                    () =>
-                                        loadRefundHistory(
-                                            refund.taxReturnId
-                                        )
-                                }
-                                statusLabels={
-                                    refundStageLabels
-                                }
-                            />
+                                {
+                                    hasNoRefund
+                                    && !isLoading
+                                    && !isCreatingReturn
+                                    && (
 
-                            <section className="detailsGrid">
-
-                                <section className="card">
-
-                                    <h2>
-                                        What happens next?
-                                    </h2>
-
-                                    <p>
-                                        {refund.guidance}
-                                    </p>
-
-                                </section>
-
-                                <section className="card">
-
-                                    <h2>
-                                        Refund details
-                                    </h2>
-
-                                    <dl>
-
-                                        <div>
-
-                                            <dt>
-                                                Customer
-                                            </dt>
-
-                                            <dd>
-                                                {refund.customerName}
-                                            </dd>
-
-                                        </div>
-
-                                        <div>
-
-                                            <dt>
-                                                Filed
-                                            </dt>
-
-                                            <dd>
-                                                {
-                                                    new Date(
-                                                        refund.filedAt
+                                        <EmptyRefundState
+                                            onCreate={
+                                                () =>
+                                                    setIsCreatingReturn(
+                                                        true
                                                     )
-                                                    .toLocaleDateString()
+                                            }
+                                        />
+                                    )
+                                }
+
+                                {
+                                    hasNoRefund
+                                    && isCreatingReturn
+                                    && (
+
+                                        <CreateFiledReturn
+                                            keycloak={
+                                                keycloak
+                                            }
+                                            onCancel={
+                                                () =>
+                                                    setIsCreatingReturn(
+                                                        false
+                                                    )
+                                            }
+                                            onCreated={
+                                                loadRefund
+                                            }
+                                        />
+                                    )
+                                }
+
+                                {
+                                    refund
+                                    && !isLoading
+                                    && (
+
+                                        <>
+
+                                            <section
+                                                id="refund-dashboard"
+                                                className="hero"
+                                            >
+
+                                                <div>
+
+                                                    <p className="eyebrow">
+                                                        Your{" "}
+                                                        {
+                                                            refund.taxYear
+                                                        }{" "}
+                                                        federal refund
+                                                    </p>
+
+                                                    <h1>
+                                                        {
+                                                            new Intl
+                                                                .NumberFormat(
+                                                                    "en-US",
+                                                                    {
+                                                                        style:
+                                                                            "currency",
+
+                                                                        currency:
+                                                                            "USD"
+                                                                    }
+                                                                )
+                                                                .format(
+                                                                    refund.refundAmount
+                                                                )
+                                                        }
+                                                    </h1>
+
+                                                    <p>
+
+                                                        Current status:
+                                                        {" "}
+
+                                                        <strong>
+                                                            {
+                                                                refundStageLabels[
+                                                                    refund.status
+                                                                ]
+                                                                || refund.status
+                                                            }
+                                                        </strong>
+
+                                                    </p>
+
+                                                    {
+                                                        refund.lastCheckedAt
+                                                        && (
+
+                                                            <p className="lastUpdatedText">
+
+                                                                Last updated{" "}
+
+                                                                {
+                                                                    new Date(
+                                                                        refund.lastCheckedAt
+                                                                    )
+                                                                    .toLocaleString()
+                                                                }
+
+                                                            </p>
+                                                        )
+                                                    }
+
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    disabled={
+                                                        isRefreshing
+                                                    }
+                                                    onClick={
+                                                        refreshFromIrs
+                                                    }
+                                                >
+
+                                                    {
+                                                        isRefreshing
+                                                            ? "Refreshing..."
+                                                            : "Refresh from IRS"
+                                                    }
+
+                                                </button>
+
+                                            </section>
+
+                                            <PredictionCard
+                                                prediction={
+                                                    prediction
                                                 }
-                                            </dd>
+                                            />
 
-                                        </div>
+                                            <RefundTimeline
+                                                currentStatus={
+                                                    refund.status
+                                                }
+                                            />
 
-                                    </dl>
+                                            <RefundHistory
+                                                events={
+                                                    refundHistory
+                                                }
+                                                errorMessage={
+                                                    historyError
+                                                }
+                                                isLoading={
+                                                    isHistoryLoading
+                                                }
+                                                onRefresh={
+                                                    () =>
+                                                        loadRefundHistory(
+                                                            refund.taxReturnId
+                                                        )
+                                                }
+                                                statusLabels={
+                                                    refundStageLabels
+                                                }
+                                            />
 
-                                </section>
+                                            <section className="detailsGrid">
+
+                                                <section className="card">
+
+                                                    <h2>
+                                                        What happens next?
+                                                    </h2>
+
+                                                    <p>
+                                                        {
+                                                            refund.guidance
+                                                            || "Continue monitoring your refund status. We will show updated guidance when new information becomes available."
+                                                        }
+                                                    </p>
+
+                                                </section>
+
+                                                <section className="card">
+
+                                                    <h2>
+                                                        Refund details
+                                                    </h2>
+
+                                                    <dl>
+
+                                                        <div>
+
+                                                            <dt>
+                                                                Customer
+                                                            </dt>
+
+                                                            <dd>
+                                                                {
+                                                                    refund.customerName
+                                                                    || "Not available"
+                                                                }
+                                                            </dd>
+
+                                                        </div>
+
+                                                        <div>
+
+                                                            <dt>
+                                                                Filed
+                                                            </dt>
+
+                                                            <dd>
+                                                                {
+                                                                    refund.filedAt
+                                                                        ? new Date(
+                                                                                refund.filedAt
+                                                                          )
+                                                                          .toLocaleDateString()
+                                                                        : "Not available"
+                                                                }
+                                                            </dd>
+
+                                                        </div>
+
+                                                        <div>
+
+                                                            <dt>
+                                                                Tax year
+                                                            </dt>
+
+                                                            <dd>
+                                                                {
+                                                                    refund.taxYear
+                                                                }
+                                                            </dd>
+
+                                                        </div>
+
+                                                        <div>
+
+                                                            <dt>
+                                                                Progress
+                                                            </dt>
+
+                                                            <dd>
+                                                                {
+                                                                    currentStageIndex >= 0
+                                                                        ? `${
+                                                                            currentStageIndex
+                                                                            + 1
+                                                                          } of ${
+                                                                            refundStages.length
+                                                                          } stages`
+                                                                        : "Status unavailable"
+                                                                }
+                                                            </dd>
+
+                                                        </div>
+
+                                                    </dl>
+
+                                                </section>
+
+                                            </section>
+                                            <section className="RefundFaq">
+
+                                                <RefundFaq />
+
+                                            </section>
+                                        </>
+                                    )
+                                }
 
                             </section>
 
-                        </>
+                        </div>
                     )
                 }
 
